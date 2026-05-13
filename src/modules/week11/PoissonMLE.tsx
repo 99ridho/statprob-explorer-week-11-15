@@ -13,6 +13,7 @@ import {
 import { ModuleCard } from "../../components/ModuleCard";
 import { DerivationPanel } from "../../components/DerivationPanel";
 import { poissonLogLikelihood } from "../../utils/mathUtils";
+import { cssVar } from "../../utils/themeColors";
 
 const MIN_OBS = 1;
 const MAX_OBS = 8;
@@ -26,6 +27,15 @@ function clamp(value: number) {
 
 export function PoissonMLE() {
   const [obs, setObs] = useState<number[]>(DEFAULT_OBS);
+
+  const colors = useMemo(
+    () => ({
+      grid: cssVar("--border"),
+      curve: cssVar("--chart-1"),
+      marker: cssVar("--chart-2"),
+    }),
+    [],
+  );
 
   const { n, sumX, thetaHat, curve, suppressChart } = useMemo(() => {
     const n = obs.length;
@@ -70,14 +80,14 @@ export function PoissonMLE() {
       }
     >
       <div>
-        <p className="mb-2 text-sm font-semibold text-slate-700">
+        <p className="mb-2 text-sm font-semibold text-foreground">
           Observasi error per jam ({n} jam)
         </p>
         <div className="flex flex-wrap items-center gap-2">
           {obs.map((v, i) => (
             <label
               key={i}
-              className="flex flex-col items-center gap-1 text-xs text-slate-500"
+              className="flex flex-col items-center gap-1 text-xs text-muted-foreground"
             >
               <span>Jam {i + 1}</span>
               <input
@@ -86,7 +96,7 @@ export function PoissonMLE() {
                 max={MAX_VALUE}
                 value={v}
                 onChange={(e) => setValue(i, e.target.value)}
-                className="h-10 w-16 rounded-md border border-cardBorder bg-white px-2 text-center text-base font-mono text-slate-800 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                className="h-10 w-16 rounded-md border border-border bg-card px-2 text-center text-base font-mono text-foreground focus:border-ring focus:outline-hidden focus:ring-2 focus:ring-ring/40"
               />
             </label>
           ))}
@@ -96,7 +106,7 @@ export function PoissonMLE() {
             type="button"
             onClick={addObs}
             disabled={obs.length >= MAX_OBS}
-            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             + Tambah Jam
           </button>
@@ -104,7 +114,7 @@ export function PoissonMLE() {
             type="button"
             onClick={removeObs}
             disabled={obs.length <= MIN_OBS}
-            className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-md border border-border bg-card px-3 py-1.5 text-sm font-semibold text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
           >
             − Hapus
           </button>
@@ -142,11 +152,11 @@ export function PoissonMLE() {
       </DerivationPanel>
 
       <div>
-        <p className="mb-2 text-sm font-semibold text-slate-700">
+        <p className="mb-2 text-sm font-semibold text-foreground">
           Kurva Log-Likelihood ln L(θ)
         </p>
         {suppressChart ? (
-          <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          <div className="rounded-md border border-accent bg-accent/20 px-4 py-3 text-sm text-accent-foreground">
             Σxᵢ = 0 → log-likelihood tidak terdefinisi pada θ &gt; 0 (ln 0).
             Tambahkan minimal satu error untuk menampilkan kurva.
           </div>
@@ -155,9 +165,9 @@ export function PoissonMLE() {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
                 data={curve}
-                margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
+                margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
                 <XAxis
                   dataKey="theta"
                   type="number"
@@ -185,18 +195,18 @@ export function PoissonMLE() {
                 <Line
                   type="monotone"
                   dataKey="lnL"
-                  stroke="#3b82f6"
+                  stroke={colors.curve}
                   strokeWidth={2}
                   dot={false}
                 />
                 <ReferenceLine
                   x={thetaHat}
-                  stroke="#ef4444"
+                  stroke={colors.marker}
                   strokeDasharray="5 5"
                   label={{
                     value: `θ̂ = ${thetaHat.toFixed(2)} error/jam`,
                     position: "top",
-                    fill: "#ef4444",
+                    fill: colors.marker,
                     fontSize: 12,
                   }}
                 />
@@ -207,7 +217,7 @@ export function PoissonMLE() {
       </div>
 
       {!suppressChart && (
-        <div className="rounded-md border-l-4 border-indigo-400 bg-indigo-50 px-4 py-3 text-sm text-slate-700">
+        <div className="rounded-md border-l-4 border-primary bg-primary/10 px-4 py-3 text-sm text-foreground">
           Estimasi MLE: rata-rata{" "}
           <strong>{thetaHat.toFixed(2)} error per jam</strong>. Sistem alerting:
           kirim notifikasi jika error &gt;{" "}
@@ -232,17 +242,17 @@ function Stat({
       className={[
         "rounded-md border px-3 py-2",
         highlight
-          ? "border-indigo-200 bg-indigo-50"
-          : "border-cardBorder bg-slate-50",
+          ? "border-primary/30 bg-primary/10"
+          : "border-border bg-muted",
       ].join(" ")}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
       <p
         className={[
           "mt-0.5 font-mono text-lg font-semibold",
-          highlight ? "text-indigo-700" : "text-slate-800",
+          highlight ? "text-primary" : "text-foreground",
         ].join(" ")}
       >
         {value}

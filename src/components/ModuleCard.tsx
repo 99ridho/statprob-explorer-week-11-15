@@ -18,18 +18,18 @@ export function ModuleCard({
   children,
 }: ModuleCardProps) {
   return (
-    <article className="rounded-xl border border-cardBorder bg-white p-5 shadow-sm sm:p-6">
+    <article className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <header className="flex flex-wrap items-center gap-2">
-        <span className="rounded-md bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700">
+        <span className="rounded-md bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">
           Modul {moduleNumber} dari {totalModules}
         </span>
-        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-600">
+        <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
           Distribusi: {distribution}
         </span>
       </header>
-      <h3 className="mt-2 text-xl font-bold text-slate-900">{title}</h3>
+      <h3 className="mt-2 text-xl font-bold text-card-foreground">{title}</h3>
 
-      <div className="mt-4 rounded-md border-l-4 border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+      <div className="mt-4 rounded-md border-l-4 border-border bg-muted px-4 py-3 text-sm text-foreground">
         {context}
       </div>
 

@@ -25,7 +25,7 @@ function Shell() {
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-pageBg">
+    <div className="flex h-screen flex-col overflow-hidden bg-background">
       <TopHeader onToggleSidebar={() => setSidebarOpen((v) => !v)} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />

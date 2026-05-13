@@ -13,6 +13,7 @@ import {
 import { ModuleCard } from "../../components/ModuleCard";
 import { DerivationPanel } from "../../components/DerivationPanel";
 import { bernoulliLikelihood } from "../../utils/mathUtils";
+import { cssVar } from "../../utils/themeColors";
 
 const MIN_TRIALS = 1;
 const MAX_TRIALS = 10;
@@ -20,6 +21,16 @@ const DEFAULT_TRIALS: (0 | 1)[] = [1, 1, 0, 1, 0];
 
 export function BernoulliMLE() {
   const [trials, setTrials] = useState<(0 | 1)[]>(DEFAULT_TRIALS);
+
+  const colors = useMemo(
+    () => ({
+      grid: cssVar("--border"),
+      curve: cssVar("--chart-1"),
+      marker: cssVar("--chart-2"),
+      highlight: cssVar("--chart-5"),
+    }),
+    [],
+  );
 
   const { n, k, thetaHat, likelihoodAtHat, curve } = useMemo(() => {
     const n = trials.length;
@@ -34,7 +45,9 @@ export function BernoulliMLE() {
   }, [trials]);
 
   const toggleTrial = (i: number) =>
-    setTrials((prev) => prev.map((v, idx) => (idx === i ? ((1 - v) as 0 | 1) : v)));
+    setTrials((prev) =>
+      prev.map((v, idx) => (idx === i ? ((1 - v) as 0 | 1) : v)),
+    );
 
   const addTrial = () =>
     setTrials((prev) => (prev.length < MAX_TRIALS ? [...prev, 1] : prev));
@@ -53,12 +66,13 @@ export function BernoulliMLE() {
       context={
         <p>
           <strong>Kasus:</strong> Tim QA menguji sejumlah fitur. Setiap fitur:
-          ✅ lulus (1) atau ❌ gagal (0). Berapa estimasi probabilitas lulus (θ)?
+          ✅ lulus (1) atau ❌ gagal (0). Berapa estimasi probabilitas lulus
+          (θ)?
         </p>
       }
     >
       <div>
-        <p className="mb-2 text-sm font-semibold text-slate-700">
+        <p className="mb-2 text-sm font-semibold text-foreground">
           Data percobaan ({n} fitur)
         </p>
         <div className="flex flex-wrap items-center gap-2">
@@ -70,8 +84,8 @@ export function BernoulliMLE() {
               className={[
                 "flex h-12 w-12 items-center justify-center rounded-md border text-xl transition-colors",
                 v === 1
-                  ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-                  : "border-rose-300 bg-rose-50 text-rose-700",
+                  ? "border-secondary bg-secondary/10 text-secondary"
+                  : "border-destructive bg-destructive/10 text-destructive",
               ].join(" ")}
               aria-label={`Trial ${i + 1}: ${v === 1 ? "lulus" : "gagal"}`}
             >
@@ -84,7 +98,7 @@ export function BernoulliMLE() {
             type="button"
             onClick={addTrial}
             disabled={trials.length >= MAX_TRIALS}
-            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             + Tambah Fitur
           </button>
@@ -92,7 +106,7 @@ export function BernoulliMLE() {
             type="button"
             onClick={removeTrial}
             disabled={trials.length <= MIN_TRIALS}
-            className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-md border border-border bg-card px-3 py-1.5 text-sm font-semibold text-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
           >
             − Hapus
           </button>
@@ -108,7 +122,9 @@ export function BernoulliMLE() {
 
       <DerivationPanel>
         <p className="font-semibold">Step 1 — Likelihood:</p>
-        <BlockMath math={String.raw`L(\theta) = \theta^{${k}} (1-\theta)^{${n - k}}`} />
+        <BlockMath
+          math={String.raw`L(\theta) = \theta^{${k}} (1-\theta)^{${n - k}}`}
+        />
 
         <p className="font-semibold">Step 2 — Log-likelihood:</p>
         <BlockMath
@@ -127,21 +143,22 @@ export function BernoulliMLE() {
       </DerivationPanel>
 
       {(k === 0 || k === n) && (
-        <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-800">
-          {k === 0
-            ? "Semua gagal → θ̂ = 0"
-            : "Semua lulus → θ̂ = 1"}
+        <div className="rounded-md border border-accent bg-accent/20 px-4 py-2 text-sm text-accent-foreground">
+          {k === 0 ? "Semua gagal → θ̂ = 0" : "Semua lulus → θ̂ = 1"}
         </div>
       )}
 
       <div>
-        <p className="mb-2 text-sm font-semibold text-slate-700">
+        <p className="mb-2 text-sm font-semibold text-foreground">
           Kurva Likelihood L(θ)
         </p>
         <div className="h-64 w-full" style={{ minWidth: 300 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={curve} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <LineChart
+              data={curve}
+              margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
               <XAxis
                 dataKey="theta"
                 type="number"
@@ -149,10 +166,7 @@ export function BernoulliMLE() {
                 tickFormatter={(v) => v.toFixed(1)}
                 label={{ value: "θ", position: "insideBottom", offset: -2 }}
               />
-              <YAxis
-                tickFormatter={(v) => v.toExponential(1)}
-                width={70}
-              />
+              <YAxis tickFormatter={(v) => v.toExponential(1)} width={70} />
               <Tooltip
                 formatter={(v) => Number(v).toExponential(3)}
                 labelFormatter={(v) => `θ = ${Number(v).toFixed(3)}`}
@@ -160,18 +174,18 @@ export function BernoulliMLE() {
               <Line
                 type="monotone"
                 dataKey="L"
-                stroke="#3b82f6"
+                stroke={colors.curve}
                 strokeWidth={2}
                 dot={false}
               />
               <ReferenceLine
                 x={thetaHat}
-                stroke="#ef4444"
+                stroke={colors.marker}
                 strokeDasharray="5 5"
                 label={{
                   value: `θ̂ = ${thetaHat.toFixed(3)}`,
                   position: "top",
-                  fill: "#ef4444",
+                  fill: colors.marker,
                   fontSize: 12,
                 }}
               />
@@ -181,16 +195,22 @@ export function BernoulliMLE() {
       </div>
 
       <div>
-        <p className="mb-2 text-sm font-semibold text-slate-700">
+        <p className="mb-2 text-sm font-semibold text-foreground">
           Perbandingan kandidat θ
         </p>
-        <div className="overflow-hidden rounded-md border border-cardBorder">
+        <div className="overflow-hidden rounded-md border border-border">
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-left">
+            <thead className="bg-muted text-left">
               <tr>
-                <th className="px-4 py-2 font-semibold text-slate-600">θ</th>
-                <th className="px-4 py-2 font-semibold text-slate-600">L(θ)</th>
-                <th className="px-4 py-2 font-semibold text-slate-600">Catatan</th>
+                <th className="px-4 py-2 font-semibold text-muted-foreground">
+                  θ
+                </th>
+                <th className="px-4 py-2 font-semibold text-muted-foreground">
+                  L(θ)
+                </th>
+                <th className="px-4 py-2 font-semibold text-muted-foreground">
+                  Catatan
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -199,20 +219,22 @@ export function BernoulliMLE() {
                 return (
                   <tr
                     key={idx}
-                    style={isMLE ? { backgroundColor: "#dcfce7" } : undefined}
-                    className="border-t border-cardBorder"
+                    style={
+                      isMLE ? { backgroundColor: colors.highlight } : undefined
+                    }
+                    className="border-t border-border"
                   >
-                    <td className="px-4 py-2 font-mono text-slate-800">
+                    <td className="px-4 py-2 font-mono text-foreground">
                       {isMLE ? (
                         <strong>θ̂ MLE = {theta.toFixed(3)}</strong>
                       ) : (
                         theta.toFixed(2)
                       )}
                     </td>
-                    <td className="px-4 py-2 font-mono text-slate-800">
+                    <td className="px-4 py-2 font-mono text-foreground">
                       {bernoulliLikelihood(theta, k, n).toExponential(3)}
                     </td>
-                    <td className="px-4 py-2 text-slate-600">
+                    <td className="px-4 py-2 text-muted-foreground">
                       {isMLE ? "← tertinggi" : ""}
                     </td>
                   </tr>
@@ -240,17 +262,17 @@ function Stat({
       className={[
         "rounded-md border px-3 py-2",
         highlight
-          ? "border-indigo-200 bg-indigo-50"
-          : "border-cardBorder bg-slate-50",
+          ? "border-primary/30 bg-primary/10"
+          : "border-border bg-muted",
       ].join(" ")}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
       <p
         className={[
           "mt-0.5 font-mono text-lg font-semibold",
-          highlight ? "text-indigo-700" : "text-slate-800",
+          highlight ? "text-primary" : "text-foreground",
         ].join(" ")}
       >
         {value}

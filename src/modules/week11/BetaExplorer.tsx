@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { ModuleCard } from "../../components/ModuleCard";
 import { betaPDF } from "../../utils/mathUtils";
+import { cssVar } from "../../utils/themeColors";
 
 const PRESETS: { label: string; k: number; m: number }[] = [
   { label: "Belum ada data", k: 0, m: 0 },
@@ -22,6 +23,16 @@ const PRESETS: { label: string; k: number; m: number }[] = [
 export function BetaExplorer() {
   const [k, setK] = useState(0);
   const [m, setM] = useState(0);
+
+  const colors = useMemo(
+    () => ({
+      grid: cssVar("--border"),
+      beta: cssVar("--chart-3"),
+      marker: cssVar("--chart-2"),
+      mean: cssVar("--chart-4"),
+    }),
+    []
+  );
 
   const { alpha, beta, mode, mean, curve, yMax } = useMemo(() => {
     const alpha = k + 1;
@@ -59,9 +70,9 @@ export function BetaExplorer() {
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="beta-k" className="flex items-baseline justify-between text-sm font-semibold text-slate-700">
+          <label htmlFor="beta-k" className="flex items-baseline justify-between text-sm font-semibold text-foreground">
             <span>k — Jumlah Klik (sukses)</span>
-            <span className="font-mono text-indigo-700">{k}</span>
+            <span className="font-mono text-primary">{k}</span>
           </label>
           <input
             id="beta-k"
@@ -70,13 +81,13 @@ export function BetaExplorer() {
             max={100}
             value={k}
             onChange={(e) => setK(parseInt(e.target.value, 10))}
-            className="mt-2 w-full accent-indigo-600"
+            className="mt-2 w-full accent-primary"
           />
         </div>
         <div>
-          <label htmlFor="beta-m" className="flex items-baseline justify-between text-sm font-semibold text-slate-700">
+          <label htmlFor="beta-m" className="flex items-baseline justify-between text-sm font-semibold text-foreground">
             <span>m — Jumlah Tidak Klik (gagal)</span>
-            <span className="font-mono text-indigo-700">{m}</span>
+            <span className="font-mono text-primary">{m}</span>
           </label>
           <input
             id="beta-m"
@@ -85,7 +96,7 @@ export function BetaExplorer() {
             max={100}
             value={m}
             onChange={(e) => setM(parseInt(e.target.value, 10))}
-            className="mt-2 w-full accent-indigo-600"
+            className="mt-2 w-full accent-primary"
           />
         </div>
       </div>
@@ -96,7 +107,7 @@ export function BetaExplorer() {
             key={preset.label}
             type="button"
             onClick={() => applyPreset(preset)}
-            className="rounded-md border border-cardBorder bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm hover:border-indigo-300 hover:bg-indigo-50"
+            className="rounded-md border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm hover:border-primary hover:bg-primary/10"
           >
             {preset.label}
           </button>
@@ -115,22 +126,22 @@ export function BetaExplorer() {
       </div>
 
       {k === 0 && m === 0 && (
-        <div className="rounded-md border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm text-indigo-800">
+        <div className="rounded-md border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary">
           Beta(1, 1) = Uniform(0, 1) — Tidak ada modus, semua nilai CTR sama mungkin.
         </div>
       )}
 
       <div>
-        <p className="mb-2 text-sm font-semibold text-slate-700">
+        <p className="mb-2 text-sm font-semibold text-foreground">
           PDF Beta(α, β)
         </p>
         <div className="h-72 w-full" style={{ minWidth: 300 }}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={curve}
-              margin={{ top: 10, right: 20, left: 0, bottom: 5 }}
+              margin={{ top: 20, right: 20, left: 0, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+              <CartesianGrid strokeDasharray="3 3" stroke={colors.grid} />
               <XAxis
                 dataKey="x"
                 type="number"
@@ -150,32 +161,32 @@ export function BetaExplorer() {
               <Area
                 type="monotone"
                 dataKey="y"
-                stroke="#6366f1"
+                stroke={colors.beta}
                 strokeWidth={2}
-                fill="#6366f1"
+                fill={colors.beta}
                 fillOpacity={0.3}
               />
               {mode !== null && (
                 <ReferenceLine
                   x={mode}
-                  stroke="#ef4444"
+                  stroke={colors.marker}
                   strokeDasharray="5 5"
                   label={{
                     value: `Modus = ${mode.toFixed(3)}`,
                     position: "top",
-                    fill: "#ef4444",
+                    fill: colors.marker,
                     fontSize: 12,
                   }}
                 />
               )}
               <ReferenceLine
                 x={mean}
-                stroke="#f97316"
+                stroke={colors.mean}
                 strokeDasharray="2 4"
                 label={{
                   value: `Mean = ${mean.toFixed(3)}`,
                   position: "insideTopRight",
-                  fill: "#f97316",
+                  fill: colors.mean,
                   fontSize: 12,
                 }}
               />
@@ -184,13 +195,13 @@ export function BetaExplorer() {
         </div>
       </div>
 
-      <div className="rounded-md border border-cardBorder bg-slate-50 px-4 py-3 font-mono text-sm text-slate-800">
+      <div className="rounded-md border border-border bg-muted px-4 py-3 font-mono text-sm text-foreground">
         <p>
           Beta(α={alpha}, β={beta})
         </p>
         <p>Modus : {mode === null ? "—" : mode.toFixed(3)}</p>
         <p>Mean  : {mean.toFixed(3)}</p>
-        <p className="mt-2 font-sans text-slate-600">
+        <p className="mt-2 font-sans text-muted-foreground">
           Interpretasi: Seolah-olah sudah mengamati {k} klik dan {m} tidak klik.
         </p>
       </div>
@@ -212,17 +223,17 @@ function Stat({
       className={[
         "rounded-md border px-3 py-2",
         highlight
-          ? "border-indigo-200 bg-indigo-50"
-          : "border-cardBorder bg-slate-50",
+          ? "border-primary/30 bg-primary/10"
+          : "border-border bg-muted",
       ].join(" ")}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         {label}
       </p>
       <p
         className={[
           "mt-0.5 font-mono text-lg font-semibold",
-          highlight ? "text-indigo-700" : "text-slate-800",
+          highlight ? "text-primary" : "text-foreground",
         ].join(" ")}
       >
         {value}
