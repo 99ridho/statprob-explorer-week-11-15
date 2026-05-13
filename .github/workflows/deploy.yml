@@ -1,0 +1,40 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy via SSH
+        env:
+          MACHINE_USER: ${{ secrets.MACHINE_USER }}
+          MACHINE_HOST: ${{ secrets.MACHINE_HOST }}
+        run: |
+          ssh -o StrictHostKeyChecking=no "${MACHINE_USER}@${MACHINE_HOST}" 'mkdir -p ${{ secrets.DESTINATION_DIR }}'
+          rsync -az --delete -e "ssh -o StrictHostKeyChecking=no" dist "${MACHINE_USER}@${MACHINE_HOST}:${{ secrets.DESTINATION_DIR }}"
