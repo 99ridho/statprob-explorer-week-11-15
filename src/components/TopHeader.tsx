@@ -29,7 +29,7 @@ export function TopHeader({ onToggleSidebar }: TopHeaderProps) {
         className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground"
         aria-hidden="true"
       >
-        <span className="text-xl font-semibold">σ</span>
+        <span className="text-xl font-semibold">{"\u03BB"}</span>
       </div>
 
       <div className="flex min-w-0 flex-col">
