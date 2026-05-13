@@ -13,7 +13,7 @@ export function Week12Page() {
         totalModules={total}
         title="Modul 1 — Confidence Interval: Rata-rata Populasi (σ Diketahui)"
         description="Modul ini akan mendemonstrasikan pembangunan confidence interval untuk rata-rata populasi ketika simpangan baku (σ) diketahui, menggunakan distribusi Normal (Z)."
-        formula={"\\bar{x} \\pm z_{\\alpha/2} \\cdot \\frac{\\sigma}{\\sqrt{n}}"}
+        formula={String.raw`\bar{x} \pm z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}}`}
         plannedInteractions="Mahasiswa akan dapat mengatur n, x̄, σ, dan tingkat kepercayaan (90%, 95%, 99%), lalu melihat interval berubah secara live pada number line."
       />
       <PlaceholderCard
@@ -21,7 +21,7 @@ export function Week12Page() {
         totalModules={total}
         title="Modul 2 — Confidence Interval: Rata-rata Populasi (σ Tidak Diketahui)"
         description="Modul ini akan mendemonstrasikan penggunaan distribusi-t (Student's t) ketika σ tidak diketahui dan n kecil."
-        formula={"\\bar{x} \\pm t_{\\alpha/2,\\, n-1} \\cdot \\frac{s}{\\sqrt{n}}"}
+        formula={String.raw`\bar{x} \pm t_{\alpha/2,\, n-1} \cdot \frac{s}{\sqrt{n}}`}
         plannedInteractions="Mahasiswa akan memasukkan data sampel mentah, lalu sistem menghitung s, df, dan CI secara otomatis."
       />
       <PlaceholderCard

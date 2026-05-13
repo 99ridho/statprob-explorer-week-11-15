@@ -13,7 +13,7 @@ export function Week13Page() {
         totalModules={total}
         title="Modul 1 — Uji Hipotesis Satu Sampel (Z-Test)"
         description="Modul ini akan memandu mahasiswa merumuskan H₀ dan H₁, menghitung Z-statistic, dan menentukan apakah H₀ ditolak berdasarkan tingkat signifikansi (α)."
-        formula={"Z = \\frac{\\bar{x} - \\mu_0}{\\sigma / \\sqrt{n}}"}
+        formula={String.raw`Z = \frac{\bar{x} - \mu_0}{\sigma / \sqrt{n}}`}
         plannedInteractions="Input: μ₀, x̄, σ, n, α. Output: Z-statistic, p-value, keputusan tolak/gagal tolak H₀, visualisasi distribusi Normal dengan rejection region diarsir."
       />
       <PlaceholderCard
@@ -21,7 +21,7 @@ export function Week13Page() {
         totalModules={total}
         title="Modul 2 — Uji Kesamaan Dua Rata-rata"
         description="Modul ini akan mendemonstrasikan pengujian apakah dua populasi memiliki rata-rata yang sama."
-        formula={"Z = \\frac{\\bar{x}_1 - \\bar{x}_2}{\\sqrt{\\dfrac{\\sigma_1^2}{n_1} + \\dfrac{\\sigma_2^2}{n_2}}}"}
+        formula={String.raw`Z = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{\dfrac{\sigma_1^2}{n_1} + \dfrac{\sigma_2^2}{n_2}}}`}
         plannedInteractions="Konteks: membandingkan performa dua versi API atau dua kelompok pengguna. Input dua set parameter, lihat keputusan uji secara live."
       />
       <PlaceholderCard

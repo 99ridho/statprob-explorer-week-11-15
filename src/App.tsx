@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   BrowserRouter,
   Navigate,
@@ -16,11 +16,13 @@ import { Week15Page } from "./pages/Week15Page";
 
 function Shell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState<string | null>(null);
   const { pathname } = useLocation();
 
-  useEffect(() => {
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setSidebarOpen(false);
-  }, [pathname]);
+  }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-pageBg">

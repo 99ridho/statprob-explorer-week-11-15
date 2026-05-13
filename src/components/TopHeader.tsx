@@ -38,7 +38,8 @@ export function TopHeader({ onToggleSidebar }: TopHeaderProps) {
           Statistika &amp; Probabilitas — Interactive Explorer
         </h1>
         <p className="truncate text-xs text-slate-500 sm:text-sm">
-          Fakultas Teknik, Universitas Negeri Jakarta
+          Sistem dan Teknologi Informasi, Fakultas Teknik, Universitas Negeri
+          Jakarta
         </p>
       </div>
 

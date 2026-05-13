@@ -20,7 +20,7 @@ export function Week14Page() {
         totalModules={total}
         title="Modul 2 — Markov Chain Monte Carlo (MCMC)"
         description="Modul ini akan memvisualisasikan bagaimana MCMC menjelajahi ruang probabilitas untuk mensampel dari distribusi target yang kompleks, menggunakan algoritma Metropolis-Hastings sederhana."
-        formula={"\\pi(\\theta) \\propto e^{-\\theta^2/2}"}
+        formula={String.raw`\pi(\theta) \propto e^{-\theta^2/2}`}
         plannedInteractions="Step-by-step animasi chain berjalan: proposal → acceptance/rejection → trace plot. Mahasiswa dapat mengatur step size dan jumlah iterasi."
       />
       <PlaceholderCard
@@ -28,7 +28,7 @@ export function Week14Page() {
         totalModules={total}
         title="Modul 3 — Bloom Filter"
         description="Modul ini akan mensimulasikan cara kerja Bloom Filter sebagai struktur data probabilistik untuk membership testing, termasuk konsep false positive rate."
-        formula={"P(\\text{false positive}) \\approx \\left(1 - e^{-kn/m}\\right)^k"}
+        formula={String.raw`P(\text{false positive}) \approx \left(1 - e^{-kn/m}\right)^k`}
         plannedInteractions="Input: ukuran filter (m), jumlah hash functions (k), jumlah elemen (n). Output: visualisasi bit array, false positive rate, dan demo insert/query."
       />
     </div>

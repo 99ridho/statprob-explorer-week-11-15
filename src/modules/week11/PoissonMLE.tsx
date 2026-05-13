@@ -120,24 +120,24 @@ export function PoissonMLE() {
       <DerivationPanel>
         <p className="font-semibold">Step 1 — Likelihood:</p>
         <BlockMath
-          math={`L(\\theta) = \\prod_{i=1}^{${n}} \\frac{e^{-\\theta}\\theta^{x_i}}{x_i!} = \\frac{e^{-${n}\\theta} \\cdot \\theta^{${sumX}}}{\\prod x_i!}`}
+          math={String.raw`L(\theta) = \prod_{i=1}^{${n}} \frac{e^{-\theta}\theta^{x_i}}{x_i!} = \frac{e^{-${n}\theta} \cdot \theta^{${sumX}}}{\prod x_i!}`}
         />
 
         <p className="font-semibold">
           Step 2 — Log-likelihood (drop konstanta C):
         </p>
         <BlockMath
-          math={`\\ln L(\\theta) = -${n}\\theta + ${sumX}\\ln\\theta + C`}
+          math={String.raw`\ln L(\theta) = -${n}\theta + ${sumX}\ln\theta + C`}
         />
 
         <p className="font-semibold">Step 3 — Derivatif, set ke nol:</p>
         <BlockMath
-          math={`\\frac{d \\ln L}{d\\theta} = -${n} + \\frac{${sumX}}{\\theta} = 0`}
+          math={String.raw`\frac{d \ln L}{d\theta} = -${n} + \frac{${sumX}}{\theta} = 0`}
         />
 
         <p className="font-semibold">Step 4 — Selesaikan:</p>
         <BlockMath
-          math={`\\hat{\\theta}_{MLE} = \\frac{${sumX}}{${n}} = ${thetaHat.toFixed(3)}`}
+          math={String.raw`\hat{\theta}_{MLE} = \frac{${sumX}}{${n}} = ${thetaHat.toFixed(3)}`}
         />
       </DerivationPanel>
 

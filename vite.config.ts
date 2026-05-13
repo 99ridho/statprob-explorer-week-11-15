@@ -3,5 +3,28 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  build: {
+    minify: 'esbuild',
+  },
+  plugins: [
+    react(),
+    {
+      name: 'spa-fallback-preview',
+      configurePreviewServer(server) {
+        server.middlewares.use((req, _res, next) => {
+          if (
+            req.method === 'GET' &&
+            req.url &&
+            !req.url.startsWith('/assets/') &&
+            !req.url.includes('.') &&
+            req.headers.accept?.includes('text/html')
+          ) {
+            req.url = '/'
+          }
+          next()
+        })
+      },
+    },
+  ],
+  appType: 'spa',
 })

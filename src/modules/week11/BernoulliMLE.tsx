@@ -108,21 +108,21 @@ export function BernoulliMLE() {
 
       <DerivationPanel>
         <p className="font-semibold">Step 1 — Likelihood:</p>
-        <BlockMath math={`L(\\theta) = \\theta^{${k}} (1-\\theta)^{${n - k}}`} />
+        <BlockMath math={String.raw`L(\theta) = \theta^{${k}} (1-\theta)^{${n - k}}`} />
 
         <p className="font-semibold">Step 2 — Log-likelihood:</p>
         <BlockMath
-          math={`\\ln L(\\theta) = ${k} \\ln\\theta + ${n - k} \\ln(1-\\theta)`}
+          math={String.raw`\ln L(\theta) = ${k} \ln\theta + ${n - k} \ln(1-\theta)`}
         />
 
         <p className="font-semibold">Step 3 — Derivatif, set ke nol:</p>
         <BlockMath
-          math={`\\frac{d \\ln L}{d\\theta} = \\frac{${k}}{\\theta} - \\frac{${n - k}}{1-\\theta} = 0`}
+          math={String.raw`\frac{d \ln L}{d\theta} = \frac{${k}}{\theta} - \frac{${n - k}}{1-\theta} = 0`}
         />
 
         <p className="font-semibold">Step 4 — Selesaikan:</p>
         <BlockMath
-          math={`${k}(1-\\theta) = ${n - k}\\,\\theta \\implies ${k} = ${n}\\theta \\implies \\hat{\\theta}_{MLE} = \\frac{${k}}{${n}} = ${thetaHat.toFixed(3)}`}
+          math={String.raw`${k}(1-\theta) = ${n - k}\,\theta \implies ${k} = ${n}\theta \implies \hat{\theta}_{MLE} = \frac{${k}}{${n}} = ${thetaHat.toFixed(3)}`}
         />
       </DerivationPanel>
 
