@@ -33,3 +33,23 @@ export function bernoulliLikelihood(theta: number, k: number, n: number): number
 export function poissonLogLikelihood(theta: number, n: number, sumX: number): number {
   return -n * theta + sumX * Math.log(theta);
 }
+
+export function lnMultiBeta(alphas: number[]): number {
+  let sumAlpha = 0;
+  let sumLnGamma = 0;
+  for (const a of alphas) {
+    sumAlpha += a;
+    sumLnGamma += lnGamma(a);
+  }
+  return sumLnGamma - lnGamma(sumAlpha);
+}
+
+export function dirichletPDF(xs: number[], alphas: number[]): number {
+  if (xs.length !== alphas.length) return 0;
+  let logTerm = 0;
+  for (let i = 0; i < xs.length; i++) {
+    if (xs[i] <= 0 || xs[i] >= 1) return 0;
+    logTerm += (alphas[i] - 1) * Math.log(xs[i]);
+  }
+  return Math.exp(logTerm - lnMultiBeta(alphas));
+}

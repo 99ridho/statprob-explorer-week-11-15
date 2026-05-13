@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { BlockMath } from "react-katex";
 import {
   Area,
   AreaChart,
@@ -9,8 +10,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { DerivationPanel } from "../../components/DerivationPanel";
 import { ModuleCard } from "../../components/ModuleCard";
-import { betaPDF } from "../../utils/mathUtils";
+import { betaPDF, lnGamma } from "../../utils/mathUtils";
 import { cssVar } from "../../utils/themeColors";
 
 const PRESETS: { label: string; k: number; m: number }[] = [
@@ -34,19 +36,21 @@ export function BetaExplorer() {
     []
   );
 
-  const { alpha, beta, mode, mean, curve, yMax } = useMemo(() => {
+  const { alpha, beta, mode, mean, curve, yMax, lnB, peakDensity } = useMemo(() => {
     const alpha = k + 1;
     const beta = m + 1;
     const mode = k === 0 && m === 0 ? null : k / (k + m);
     const mean = alpha / (alpha + beta);
+    const lnB = lnGamma(alpha) + lnGamma(beta) - lnGamma(alpha + beta);
     const points = 201;
     const curve = Array.from({ length: points }, (_, i) => {
       const x = i / (points - 1);
       return { x, y: betaPDF(x, alpha, beta) };
     });
     const peak = Math.max(...curve.map((p) => (Number.isFinite(p.y) ? p.y : 0)));
+    const peakDensity = mode === null ? 1 : betaPDF(mode, alpha, beta);
     const yMax = Math.max(1.5, peak * 1.1);
-    return { alpha, beta, mode, mean, curve, yMax };
+    return { alpha, beta, mode, mean, curve, yMax, lnB, peakDensity };
   }, [k, m]);
 
   const applyPreset = (preset: { k: number; m: number }) => {
@@ -57,7 +61,7 @@ export function BetaExplorer() {
   return (
     <ModuleCard
       moduleNumber={3}
-      totalModules={3}
+      totalModules={4}
       title="Beta Distribution Explorer"
       distribution="Beta(α, β)"
       context={
@@ -130,6 +134,45 @@ export function BetaExplorer() {
           Beta(1, 1) = Uniform(0, 1) — Tidak ada modus, semua nilai CTR sama mungkin.
         </div>
       )}
+
+      <DerivationPanel>
+        <p className="font-semibold">Step 1 — Definisi Beta (Tsun, 2020, hal. 269):</p>
+        <BlockMath
+          math={String.raw`f_X(x) = \frac{1}{B(\alpha, \beta)}\, x^{\alpha - 1} (1-x)^{\beta - 1}, \quad x \in (0, 1)`}
+        />
+
+        <p className="font-semibold">Step 2 — Parameter dari data (off-by-one):</p>
+        <BlockMath
+          math={String.raw`\alpha = k + 1 = ${k} + 1 = ${alpha}, \quad \beta = m + 1 = ${m} + 1 = ${beta}`}
+        />
+
+        <p className="font-semibold">Step 3 — Hitung B(α, β) via Lanczos lnΓ:</p>
+        <BlockMath
+          math={String.raw`B(\alpha, \beta) = \frac{\Gamma(\alpha)\,\Gamma(\beta)}{\Gamma(\alpha + \beta)} \implies \ln B(${alpha}, ${beta}) = ${lnB.toFixed(4)}`}
+        />
+
+        <p className="font-semibold">Step 4 — Substitusi ke PDF:</p>
+        <BlockMath
+          math={String.raw`f_X(x) = \frac{x^{${alpha - 1}} (1-x)^{${beta - 1}}}{B(${alpha}, ${beta})}`}
+        />
+
+        <p className="font-semibold">Step 5 — Modus dan Mean:</p>
+        <BlockMath
+          math={String.raw`\text{Mode} = \frac{\alpha - 1}{\alpha + \beta - 2} = \frac{${k}}{${k + m}} ${mode === null ? "= \\text{tak terdefinisi}" : `= ${mode.toFixed(3)}`}`}
+        />
+        <BlockMath
+          math={String.raw`\text{Mean} = \frac{\alpha}{\alpha + \beta} = \frac{${alpha}}{${alpha + beta}} = ${mean.toFixed(3)}`}
+        />
+
+        {mode !== null && (
+          <>
+            <p className="font-semibold">Step 6 — Densitas puncak (di modus):</p>
+            <BlockMath
+              math={String.raw`f_X(${mode.toFixed(3)}) = ${peakDensity.toFixed(3)}`}
+            />
+          </>
+        )}
+      </DerivationPanel>
 
       <div>
         <p className="mb-2 text-sm font-semibold text-foreground">

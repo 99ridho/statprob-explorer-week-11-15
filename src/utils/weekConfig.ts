@@ -12,7 +12,7 @@ export const WEEKS: WeekConfig[] = [
   {
     number: 11,
     title: "Estimasi Parameter",
-    subtitle: "MLE · Point Estimation · Beta Distribution",
+    subtitle: "MLE · Point Estimation · Beta & Dirichlet Distribution",
     subCPMK:
       "Mahasiswa mampu melakukan estimasi titik menggunakan MLE dan MAP",
     status: "available",

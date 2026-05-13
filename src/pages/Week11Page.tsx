@@ -2,6 +2,7 @@ import { WeekHeader } from "../components/WeekHeader";
 import { BernoulliMLE } from "../modules/week11/BernoulliMLE";
 import { PoissonMLE } from "../modules/week11/PoissonMLE";
 import { BetaExplorer } from "../modules/week11/BetaExplorer";
+import { DirichletExplorer } from "../modules/week11/DirichletExplorer";
 import { getWeek } from "../utils/weekConfig";
 
 export function Week11Page() {
@@ -12,6 +13,7 @@ export function Week11Page() {
       <BernoulliMLE />
       <PoissonMLE />
       <BetaExplorer />
+      <DirichletExplorer />
     </div>
   );
 }

@@ -14,7 +14,7 @@
 
 A single-page web application (SPA) covering **Weeks 11–15** of the Statistika dan Probabilitas course. The app uses a **persistent week-based navigation sidebar** to switch between weekly content views. Each week renders its own set of interactive modules on the main content area — all computation runs client-side, no backend required.
 
-The app is designed for **incremental development**: Week 11 is fully implemented, Weeks 12–15 ship as structured placeholders that are ready to be filled in subsequent development sessions.
+The app is designed for **incremental development**: Week 11 is fully implemented (MLE Bernoulli, MLE Poisson, Beta Distribution Explorer, and Dirichlet Distribution Explorer), Weeks 12–15 ship as structured placeholders that are ready to be filled in subsequent development sessions.
 
 **Tech stack (required):**
 
@@ -115,7 +115,7 @@ Every week page (implemented or placeholder) must render a **week header** at th
 ┌─────────────────────────────────────────────────────┐
 │  Minggu 11                          [Sub-CPMK badge]│
 │  Estimasi Parameter                                  │
-│  MLE · Point Estimation · Beta Distribution          │
+│  MLE · Point Estimation · Beta & Dirichlet           │
 │  ─────────────────────────────────────────────────  │
 │  Mahasiswa mampu melakukan estimasi titik            │
 │  menggunakan MLE dan MAP.                            │
@@ -126,7 +126,7 @@ Fields per week:
 
 | Week | Title                  | Subtitle (topics)                          | Sub-CPMK                                                                                                                                           |
 | ---- | ---------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 11   | Estimasi Parameter     | MLE · Point Estimation · Beta Distribution | Mahasiswa mampu melakukan estimasi titik menggunakan MLE dan MAP                                                                                   |
+| 11   | Estimasi Parameter     | MLE · Point Estimation · Beta & Dirichlet Distribution | Mahasiswa mampu melakukan estimasi titik menggunakan MLE dan MAP                                                                                   |
 | 12   | Confidence Interval    | Interval Kepercayaan · Interpretasi CI     | Mahasiswa mampu membangun dan menginterpretasikan confidence interval                                                                              |
 | 13   | Uji Hipotesis          | H₀ & H₁ · Uji Rata-rata · P-Value          | Mahasiswa mampu merumuskan hipotesis nol dan alternatif dengan benar serta mampu melakukan uji hipotesis rata-rata dan menginterpretasikan p-value |
 | 14   | Aplikasi Komputasi     | Simulasi · MCMC · Bloom Filters            | Mahasiswa mampu melakukan simulasi probabilitas menggunakan tools komputasi dan menerapkan MCMC serta Bloom Filters                                |
@@ -136,11 +136,11 @@ Fields per week:
 
 ## 3. Week 11 — Estimasi Parameter (FULLY IMPLEMENTED)
 
-Week 11 renders three interactive modules sequentially in the main content area, each in its own card.
+Week 11 renders four interactive modules sequentially in the main content area, each in its own card.
 
 ### Module structure per card:
 
-1. Module title + number badge (e.g. "Modul 1 dari 3")
+1. Module title + number badge (e.g. "Modul 1 dari 4")
 2. Distribution label (e.g. "Distribusi: Bernoulli")
 3. Context/kasus label (gray callout box)
 4. Input controls
@@ -352,6 +352,95 @@ Modus : {mode or "—"}
 Mean  : {mean, 3 dp}
 Interpretasi: Seolah-olah sudah mengamati {k} klik dan {m} tidak klik.
 ```
+
+---
+
+### Module 11.4 — Dirichlet Distribution Explorer
+
+#### Purpose
+
+Show how Dirichlet(α₁, …, αᵣ) generalizes Beta to r categories, and how each category's marginal belief narrows as observations accumulate. Source: Tsun (2020, p. 270, Definition 7.4.2).
+
+#### Context label
+
+> **Kasus:** Sebuah platform e-commerce mengklasifikasikan sentimen ulasan produk menjadi tiga kategori: 😊 Positif, 😐 Netral, 😞 Negatif. Sistem memperbarui distribusi Dirichlet setiap kali ulasan baru masuk — tanpa melatih ulang model dari nol.
+
+#### Input
+
+| Slider                | Range  | Default |
+| --------------------- | ------ | ------- |
+| k₁ — Ulasan Positif   | 0–1000 | 0       |
+| k₂ — Ulasan Netral    | 0–1000 | 0       |
+| k₃ — Ulasan Negatif   | 0–1000 | 0       |
+
+Parameters: **αᵢ = kᵢ + 1** (mirror Beta off-by-one per Tsun, 2020, p. 269–270 — must be exact). Total concentration **α₀ = Σ αⱼ**.
+
+#### Computed values
+
+| Symbol     | Formula                                                | Edge case                  |
+| ---------- | ------------------------------------------------------ | -------------------------- |
+| αᵢ         | kᵢ + 1                                                 | —                          |
+| α₀         | Σ αⱼ                                                   | —                          |
+| Mode pᵢ    | $k_i / \sum_j k_j$ = $(\alpha_i - 1)/(\alpha_0 - r)$    | "—" when all kᵢ = 0        |
+| Mean pᵢ    | $\alpha_i / \alpha_0$                                  | —                          |
+
+When all kᵢ = 0: display "Dir(1, 1, 1) = Uniform pada simplex — semua proporsi sama mungkin."
+
+#### Marginal Beta chart
+
+Each marginal of a Dirichlet is a Beta: **Xᵢ ~ Beta(αᵢ, α₀ − αᵢ)**. The chart overlays three marginal Beta PDFs on a single [0, 1] axis so students can see directly how each category's belief sharpens around its proportion.
+
+- X-axis: x ∈ [0, 1], 201 points
+- Y-axis: `betaPDF(x, αᵢ, α₀ − αᵢ)` for i = 1, 2, 3
+- Recharts `AreaChart` with three filled `<Area>` series (Positif / Netral / Negatif) in distinct colors
+- Dotted reference line at each category's mean
+- Y-axis auto-scaled; min Y-max = 1.5 (for uniform case)
+
+**Required dirichletPDF implementation (Lanczos log-gamma — do not deviate):**
+
+```javascript
+function lnMultiBeta(alphas) {
+  let sumAlpha = 0;
+  let sumLnGamma = 0;
+  for (const a of alphas) {
+    sumAlpha += a;
+    sumLnGamma += lnGamma(a);
+  }
+  return sumLnGamma - lnGamma(sumAlpha);
+}
+
+function dirichletPDF(xs, alphas) {
+  if (xs.length !== alphas.length) return 0;
+  let logTerm = 0;
+  for (let i = 0; i < xs.length; i++) {
+    if (xs[i] <= 0 || xs[i] >= 1) return 0;
+    logTerm += (alphas[i] - 1) * Math.log(xs[i]);
+  }
+  return Math.exp(logTerm - lnMultiBeta(alphas));
+}
+```
+
+The chart renders via marginal `betaPDF`, but `dirichletPDF` is the authoritative joint-density formula and must be present in `mathUtils`.
+
+#### Preset scenario buttons (from Tsun, 2020, p. 270)
+
+| Label                       | k₁  | k₂  | k₃  | α₁  | α₂  | α₃  |
+| --------------------------- | --- | --- | --- | --- | --- | --- |
+| "Belum ada data"            | 0   | 0   | 0   | 1   | 1   | 1   |
+| "Ulasan awal (600/250/150)" | 600 | 250 | 150 | 601 | 251 | 151 |
+| "Imbang (10/10/10)"         | 10  | 10  | 10  | 11  | 11  | 11  |
+| "Polar (50/5/45)"           | 50  | 5   | 45  | 51  | 6   | 46  |
+
+#### Parameter summary card
+
+```
+Dir(α₁={α₁}, α₂={α₂}, α₃={α₃})
+Modus : ({p̂₁ or "—"}, {p̂₂ or "—"}, {p̂₃ or "—"})
+Mean  : ({mean₁, 3 dp}, {mean₂, 3 dp}, {mean₃, 3 dp})
+Interpretasi: Seolah-olah sudah mengamati {k₁} positif, {k₂} netral, {k₃} negatif.
+```
+
+**Hubungan Beta–Dirichlet:** Jika k₃ = 0 (slider fixed di nol) dan hanya k₁, k₂ yang divariasikan, marginal pertama harus cocok dengan Beta(k₁+1, k₂+1) di Module 11.3 — yaitu Dirichlet runtuh menjadi Beta untuk r = 2.
 
 ---
 
@@ -630,6 +719,11 @@ All formulas must be implemented exactly as specified:
 | Beta β           | `m + 1`                                                               | `m` ← off-by-one error          |
 | Beta Mode        | `(alpha - 1) / (alpha + beta - 2)` = `k / (k + m)`                    | Mean or median                  |
 | Beta Mean        | `alpha / (alpha + beta)` = `(k+1) / (k+m+2)`                          | Mode                            |
+| Dirichlet PDF    | `dirichletPDF(xs, alphas)` via `lnMultiBeta` (Lanczos lnGamma)        | Any non-normalized form         |
+| Dirichlet αᵢ     | `kᵢ + 1`                                                              | `kᵢ` ← off-by-one error         |
+| Dirichlet Mode pᵢ| `kᵢ / Σⱼ kⱼ` = `(αᵢ − 1) / (α₀ − r)`                                  | Mean or median                  |
+| Dirichlet Mean pᵢ| `αᵢ / α₀`                                                             | Mode                            |
+| Marginal of Dir  | `betaPDF(x, αᵢ, α₀ − αᵢ)`                                             | Plotting joint density in 1D    |
 
 ---
 
@@ -654,10 +748,11 @@ src/
 │   ├── week11/
 │   │   ├── BernoulliMLE.jsx
 │   │   ├── PoissonMLE.jsx
-│   │   └── BetaExplorer.jsx
+│   │   ├── BetaExplorer.jsx
+│   │   └── DirichletExplorer.jsx
 │   └── (week12/, week13/, etc. added in future sessions)
 └── utils/
-    ├── mathUtils.js           # lnGamma, betaPDF, all math functions
+    ├── mathUtils.js           # lnGamma, betaPDF, dirichletPDF, all math functions
     └── weekConfig.js          # Week metadata (titles, sub-CPMK, status)
 ```
 
@@ -668,7 +763,7 @@ export const WEEKS = [
   {
     number: 11,
     title: "Estimasi Parameter",
-    subtitle: "MLE · Point Estimation · Beta Distribution",
+    subtitle: "MLE · Point Estimation · Beta & Dirichlet Distribution",
     subCPMK: "Mahasiswa mampu melakukan estimasi titik menggunakan MLE dan MAP",
     status: "available", // "available" | "placeholder"
   },
@@ -713,7 +808,6 @@ When a week is fully implemented, change its `status` to `"available"` — the s
 ## 11. Out of Scope (v1.0)
 
 - Method of Moments (MoM)
-- Dirichlet Distribution visualization
 - MAP Estimation module
 - User authentication or data persistence
 - Export / download functionality
@@ -750,6 +844,10 @@ When a week is fully implemented, change its `status` to `"available"` — the s
 | AC-11-9  | All formulas render as KaTeX, not raw LaTeX strings                                                                       |
 | AC-11-10 | Module 11.1 edge cases (k=0, k=n) display notices and do not crash                                                        |
 | AC-11-11 | Module 11.2 edge case (Σxᵢ=0) displays notice and suppresses chart                                                        |
+| AC-11-12 | Sliders in Module 11.4 instantly update αᵢ, modus, mean, and the three marginal Beta curves                               |
+| AC-11-13 | When all kᵢ = 0 in Module 11.4: three flat uniform curves, modus shows "—", and the Dir(1,1,1) notice is visible          |
+| AC-11-14 | Preset "Ulasan awal (600/250/150)" produces Dir(601, 251, 151) with means ≈ 0.600 / 0.250 / 0.150                         |
+| AC-11-15 | Setting k₃ = 0 and varying k₁, k₂ produces marginals consistent with Beta(k₁+1, k₂+1) from Module 11.3                    |
 
 ### Placeholder Weeks
 

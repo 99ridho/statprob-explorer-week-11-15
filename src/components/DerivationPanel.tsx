@@ -19,7 +19,11 @@ export function DerivationPanel({
         className="flex w-full items-center justify-between px-4 py-2 text-sm font-semibold text-foreground hover:bg-muted/70"
         aria-expanded={open}
       >
-        <span>{open ? "Sembunyikan Derivasi" : "Tampilkan Derivasi"}</span>
+        <span>
+          {open
+            ? "Sembunyikan Perhitungan Matematis"
+            : "Tampilkan Perhitungan Matematis"}
+        </span>
         <span aria-hidden="true">{open ? "▾" : "▸"}</span>
       </button>
       {open && (

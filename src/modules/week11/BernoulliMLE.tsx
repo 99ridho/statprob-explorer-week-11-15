@@ -60,7 +60,7 @@ export function BernoulliMLE() {
   return (
     <ModuleCard
       moduleNumber={1}
-      totalModules={3}
+      totalModules={4}
       title="MLE: Bernoulli"
       distribution="Bernoulli"
       context={

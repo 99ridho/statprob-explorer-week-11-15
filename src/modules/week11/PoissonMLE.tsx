@@ -69,7 +69,7 @@ export function PoissonMLE() {
   return (
     <ModuleCard
       moduleNumber={2}
-      totalModules={3}
+      totalModules={4}
       title="MLE: Poisson"
       distribution="Poisson"
       context={
