@@ -29,8 +29,8 @@ function Shell() {
       <TopHeader onToggleSidebar={() => setSidebarOpen((v) => !v)} />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-6 sm:px-6 md:px-8">
-          <div className="mx-auto max-w-5xl">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-4 sm:px-6 sm:py-6 md:px-8">
+          <div className="mx-auto max-w-5xl min-w-0">
             <Routes>
               <Route path="/" element={<Navigate to="/week/11" replace />} />
               <Route path="/week/11" element={<Week11Page />} />

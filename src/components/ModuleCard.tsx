@@ -18,7 +18,7 @@ export function ModuleCard({
   children,
 }: ModuleCardProps) {
   return (
-    <article className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
+    <article className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5 md:p-6">
       <header className="flex flex-wrap items-center gap-2">
         <span className="rounded-md bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">
           Modul {moduleNumber} dari {totalModules}
@@ -33,7 +33,7 @@ export function ModuleCard({
         {context}
       </div>
 
-      <div className="mt-5 space-y-5">{children}</div>
+      <div className="mt-5 space-y-5 min-w-0">{children}</div>
     </article>
   );
 }

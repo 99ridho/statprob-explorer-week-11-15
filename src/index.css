@@ -132,6 +132,26 @@ body,
   margin: 0;
 }
 
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.25rem;
+  max-width: 100%;
+}
+
+.katex {
+  white-space: normal;
+}
+
+@media (max-width: 640px) {
+  .katex-display > .katex {
+    font-size: 0.9em;
+  }
+  .katex {
+    font-size: 0.95em;
+  }
+}
+
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;

@@ -27,7 +27,7 @@ export function DerivationPanel({
         <span aria-hidden="true">{open ? "▾" : "▸"}</span>
       </button>
       {open && (
-        <div className="space-y-3 border-t border-border px-4 py-4 text-sm text-foreground">
+        <div className="space-y-3 border-t border-border px-3 py-3 text-sm text-foreground sm:px-4 sm:py-4">
           {children}
         </div>
       )}
