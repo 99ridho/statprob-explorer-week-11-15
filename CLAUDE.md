@@ -19,6 +19,10 @@ There are no tests in this project.
 - **Dirichlet αᵢ = kᵢ + 1** — same off-by-one as Beta (Tsun 2020, p. 270). `dirichletPDF` must use the Lanczos `lnGamma` via `lnMultiBeta` in `src/utils/mathUtils.ts`.
 - **Poisson uses log-likelihood**, not raw likelihood — raw form underflows.
 - **`betaPDF` must use the Lanczos `lnGamma`** in `src/utils/mathUtils.ts`; do not swap in an alternative gamma.
+- **Z-test for proportion uses σ₀ under H₀**, i.e. `σ₀ = √(p₀(1−p₀)/n)` — not the Wald σ̂ from the CI module. The CI module uses `p̂` because there is no null hypothesis.
+- **Bloom filter FPR uses the EXACT formula `(1 − (1 − 1/m)ⁿ)ᵏ`** (Theorem 9.4.39, Tsun 2020 p. 329), not the asymptotic `e^(−kn/m)` approximation. `bloomHash` is FNV-1a-style and must stay deterministic for `(str, salt, m)`.
+- **MCMC modules use `mulberry32`** (seeded) so runs are reproducible — never `Math.random()`.
+- **Tsun (2020) hal. 306 and 308 contain arithmetic typos** (SuperSAT: book says Z ≈ 2.14, correct is 2.57; Washington: book says Z ≈ 5.43, correct is 5.57). Modules 13.1 and 13.2 surface the correct value; FRD AC-13-1 / AC-13-4 document the discrepancy.
 
 ## Architecture
 
@@ -26,9 +30,9 @@ Single-page React app covering Weeks 11–15 of a "Statistika dan Probabilitas" 
 
 - **Routing shell** (`src/App.tsx`): `BrowserRouter` mounts `Shell`, which lays out `TopHeader` (fixed top, full width) over a flex row of `Sidebar` (240px, fixed height) + `<main>` — the **only vertical scroll area**. Outer container is `h-screen overflow-hidden`. Routes: `/` → `/week/11`, `/week/11..15`; unknown paths redirect to `/week/11`.
 - **Week registry** (`src/utils/weekConfig.ts`): one `WEEKS` array drives the sidebar, each page's `<WeekHeader>`, and the progress indicator. Flipping a week's `status` from `"placeholder"` to `"available"` automatically updates sidebar badge + progress (AC-G3). Add new weekly content through this registry, not via ad-hoc state.
-- **Page layer** (`src/pages/`): one `WeekNPage` per week. Week 11 composes the four real modules; Weeks 12–15 compose `PlaceholderCard`s with the FRD-mandated counts (3 / 4 / 3 / 2).
-- **Module layer** (`src/modules/week11/`): each module is self-contained — owns its `useState`, derives the rest with `useMemo`, and wraps its UI in the shared `ModuleCard`. No global store and no submit buttons; every value updates on input change.
-- **Math** (`src/utils/mathUtils.ts`): all distribution math lives here. Modules import these helpers rather than inlining formulas so the accuracy invariants are enforced in one place.
+- **Page layer** (`src/pages/`): one `WeekNPage` per week. Weeks 11–14 compose their real modules; Week 15 composes 2 `PlaceholderCard`s.
+- **Module layer**: each interactive module is self-contained — owns its `useState`, derives the rest with `useMemo`, and wraps its UI in the shared `ModuleCard`. No global store and no submit buttons; every value updates on input change. Current weeks live under `src/modules/week11/`, `src/modules/week12/`, `src/modules/week13/`, `src/modules/week14/`.
+- **Math** (`src/utils/mathUtils.ts`): all distribution math, PRNG, and Bloom helpers live here. Modules import these helpers rather than inlining formulas so the accuracy invariants are enforced in one place. The MCMC step kernels in `MCMCVisualizer.tsx` are deliberately module-local since they are not reused.
 
 ## Conventions worth knowing
 

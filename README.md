@@ -11,7 +11,21 @@ All computation runs in the browser — no backend.
   - **Modul 2 — MLE: Poisson**: editable observations, log-likelihood curve (raw form would underflow), `θ̂ = Σxᵢ/n` shown with an alerting-threshold interpretation.
   - **Modul 3 — Beta Distribution Explorer**: `k` / `m` sliders driving `Beta(k+1, m+1)`, Lanczos-`lnGamma` PDF, mode and mean markers, and four preset scenarios.
   - **Modul 4 — Dirichlet Distribution Explorer**: three count sliders (k₁ / k₂ / k₃) driving `Dir(k₁+1, k₂+1, k₃+1)`, three overlaid marginal-Beta PDFs (one per category), mean markers, and presets including the sentiment-classification kasus from Tsun (2020, p. 270).
-- **Minggu 12–15 — placeholders**: each week renders its `WeekHeader` plus the FRD-mandated number of placeholder module cards (3 / 4 / 3 / 2) with KaTeX formula previews and a "Rencana interaksi" note. No interactive controls yet.
+- **Minggu 12 — Confidence Interval (fully interactive)**
+  - **Modul 1 — CI untuk Proporsi**: Wald CI with `bernoulliCI`; live `z` from `normalInverseCDF`; presets including the Tsun n=400 / k=136 book example.
+  - **Modul 2 — CI Width Explorer**: log-x width curves for 90 / 95 / 99 confidence and an inverse "n minimum untuk margin m" calculator.
+  - **Modul 3 — CI Interpretation Simulator**: K seeded resamples from a true θ, frequentist coverage bar, and a horizontal-band visualization to demolish the "95% of intervals contain θ" misreading.
+  - **Modul 4 — Credible Interval (Bayesian)**: Beta posterior with `α₀`, `β₀` priors; central credible interval via `betaInverseCDF` (Lentz + bisection); collapses to Modul 11.3's Beta when the prior is flat.
+- **Minggu 13 — Uji Hipotesis (fully interactive)**
+  - **Modul 1 — One-Sample Z-Test untuk Rata-rata**: μ₀, x̄, σ, n, α, alternative; Z-statistic, p-value, decision, and a Normal PDF with rejection region shaded. Tsun SuperSAT + MLOps latency presets.
+  - **Modul 2 — One-Sample Z-Test untuk Proporsi**: p₀, k, n with the H₀-variance σ₀; Washington-election and antivirus-claim presets.
+  - **Modul 3 — Two-Sample Z-Test (A/B Test)**: difference-of-means with NimbusStore A/B preset (slide 10).
+  - **Modul 4 — Kelemahan P-Value**: n-effect sub-demo, p-hacking / optional-stopping sub-demo, and the statistical-vs-practical 2×2 matrix.
+- **Minggu 14 — Aplikasi Komputasi (fully interactive)**
+  - **Modul 1 — Probability via Simulation**: segmented Geometric / fixed-points / "at least one 6" scenarios with `mulberry32`-seeded convergence chart.
+  - **Modul 2 — Bloom Filter Simulator**: exact `bloomFPR = (1 − (1 − 1/m)ⁿ)ᵏ`, bit-array heatmap, theoretical-vs-empirical FPR overlay, and an interactive insert/query panel with `bloomHash`.
+  - **Modul 3 — MCMC Visualizer**: TSP / Knapsack toggle driving the same Metropolis-acceptance kernel `e^(−Δ/T)` with Run / Step / Reset and `requestAnimationFrame` auto-step.
+- **Minggu 15 — placeholder**: renders its `WeekHeader` plus 2 placeholder module cards with KaTeX formula previews and a "Rencana interaksi" note. No interactive controls yet.
 - **Persistent shell**: top header, fixed-height sidebar listing all five weeks with active highlighting and a `WEEKS`-driven progress indicator, and a scrollable main content area. Mobile (<768px) collapses the sidebar into a drawer.
 
 ## Tech stack
@@ -40,9 +54,14 @@ src/
 ├── components/              TopHeader, Sidebar, WeekHeader, ModuleCard,
 │                            PlaceholderCard, DerivationPanel
 ├── pages/                   Week11Page … Week15Page
-├── modules/week11/          BernoulliMLE, PoissonMLE, BetaExplorer, DirichletExplorer
+├── modules/
+│   ├── week11/              BernoulliMLE, PoissonMLE, BetaExplorer, DirichletExplorer
+│   ├── week12/              CIProportion, CIWidthExplorer, CIInterpretationSimulator, CredibleInterval
+│   ├── week13/              OneSampleMeanTest, OneSampleProportionTest, TwoSampleTest, PValueDrawbacks
+│   └── week14/              ProbabilityViaSimulation, BloomFilter, MCMCVisualizer
 └── utils/
-    ├── mathUtils.ts         Lanczos lnGamma, betaPDF, dirichletPDF, likelihood helpers
+    ├── mathUtils.ts         Lanczos lnGamma, beta/dirichlet PDF + CDF, normalCDF / inverse,
+    │                        mulberry32 PRNG, Z-test helpers, bloomHash / bloomFPR
     └── weekConfig.ts        WEEKS array — single source of truth
 ```
 
