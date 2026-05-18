@@ -27,10 +27,10 @@ export const WEEKS: WeekConfig[] = [
   {
     number: 13,
     title: "Uji Hipotesis",
-    subtitle: "H₀ & H₁ · Uji Rata-rata · P-Value",
+    subtitle: "Z-Test · Proporsi · A/B Test · P-Value Drawbacks",
     subCPMK:
       "Mahasiswa mampu merumuskan hipotesis nol dan alternatif dengan benar serta mampu melakukan uji hipotesis rata-rata dan menginterpretasikan p-value",
-    status: "placeholder",
+    status: "available",
   },
   {
     number: 14,
@@ -38,7 +38,7 @@ export const WEEKS: WeekConfig[] = [
     subtitle: "Simulasi · MCMC · Bloom Filters",
     subCPMK:
       "Mahasiswa mampu melakukan simulasi probabilitas menggunakan tools komputasi dan menerapkan MCMC serta Bloom Filters",
-    status: "placeholder",
+    status: "available",
   },
 ];
 

@@ -221,3 +221,88 @@ export function mulberry32(seed: number): () => number {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
+
+// ─── Week 13: Hypothesis Testing ─────────────────────────────────────────────
+
+export type Tail = "less" | "greater" | "two";
+
+// p-value from a Z-statistic under N(0,1) (Tsun, 2020, hal. 305–309).
+//   "greater":  p = P(Z ≥ z) = 1 − Φ(z)
+//   "less":     p = P(Z ≤ z) = Φ(z)
+//   "two":      p = 2 · P(Z ≥ |z|) = 2 · (1 − Φ(|z|))
+export function pValueFromZ(z: number, tail: Tail): number {
+  if (!Number.isFinite(z)) return NaN;
+  if (tail === "greater") return 1 - normalCDF(z);
+  if (tail === "less") return normalCDF(z);
+  return 2 * (1 - normalCDF(Math.abs(z)));
+}
+
+// One-sample Z-statistic for the mean (σ known) — Tsun, 2020, hal. 306.
+//   Z = (x̄ − μ₀) / (σ/√n)
+export function oneSampleZ(
+  xbar: number,
+  mu0: number,
+  sigma: number,
+  n: number,
+): number {
+  if (!(sigma > 0) || !(n > 0)) return NaN;
+  return (xbar - mu0) / (sigma / Math.sqrt(n));
+}
+
+// One-sample Z for a proportion (Bernoulli + CLT) — Tsun, 2020, hal. 308.
+//   σ₀ = √(p₀ (1 − p₀) / n)
+//   Z  = (k/n − p₀) / σ₀
+export function oneSampleZProportion(
+  k: number,
+  n: number,
+  p0: number,
+): { z: number; sigma0: number } {
+  if (!(n > 0)) return { z: NaN, sigma0: NaN };
+  const sigma0 = Math.sqrt((p0 * (1 - p0)) / n);
+  if (!(sigma0 > 0)) return { z: NaN, sigma0 };
+  return { z: (k / n - p0) / sigma0, sigma0 };
+}
+
+// Two-sample Z for the difference of means (σ₁, σ₂ known) — Tsun, 2020, hal. 309.
+//   Z = (x̄₁ − x̄₂) / √(σ₁²/n₁ + σ₂²/n₂)
+export function twoSampleZ(
+  x1: number,
+  s1: number,
+  n1: number,
+  x2: number,
+  s2: number,
+  n2: number,
+): number {
+  if (!(n1 > 0) || !(n2 > 0) || !(s1 > 0) || !(s2 > 0)) return NaN;
+  const se = Math.sqrt((s1 * s1) / n1 + (s2 * s2) / n2);
+  if (!(se > 0)) return NaN;
+  return (x1 - x2) / se;
+}
+
+// ─── Week 14: Bloom Filters ──────────────────────────────────────────────────
+
+// bloomHash — FNV-1a-style deterministic hash. Returns an integer index in
+// [0, m). The salt parameter makes k independent hash functions from a single
+// primitive: h_i(x) = bloomHash(x, i, m). Deterministic given (str, salt, m).
+export function bloomHash(str: string, salt: number, m: number): number {
+  let h = (2166136261 ^ (salt | 0)) >>> 0;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  h ^= h >>> 16;
+  h = Math.imul(h, 0x7feb352d) >>> 0;
+  h ^= h >>> 15;
+  h = Math.imul(h, 0x846ca68b) >>> 0;
+  h ^= h >>> 16;
+  return m > 0 ? h % m : 0;
+}
+
+// bloomFPR — Theorem 9.4.39 (Tsun, 2020, hal. 329). EXACT formula
+// (1 − (1 − 1/m)^n)^k; do NOT substitute the asymptotic e^{-kn/m} form.
+export function bloomFPR(m: number, k: number, n: number): number {
+  if (m <= 0 || k <= 0) return 0;
+  if (n <= 0) return 0;
+  const bitSet = 1 - Math.pow(1 - 1 / m, n);
+  return Math.pow(bitSet, k);
+}

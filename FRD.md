@@ -6,7 +6,7 @@
 **Target pengguna:** Mahasiswa Program Studi Sistem dan Teknologi Informasi, Fakultas Teknik, Universitas Negeri Jakarta  
 **Referensi materi:** Alex Tsun, _Probability & Statistics with Applications to Computing_, 2020  
 **Dokumen ini ditujukan untuk:** Implementasi via Claude Code  
-**Versi:** 2.1 — Week 12 (Confidence Interval) fully implemented
+**Versi:** 2.2 — Weeks 11–14 fully implemented; Week 15 placeholder
 
 ---
 
@@ -14,7 +14,7 @@
 
 A single-page web application (SPA) covering **Weeks 11–15** of the Statistika dan Probabilitas course. The app uses a **persistent week-based navigation sidebar** to switch between weekly content views. Each week renders its own set of interactive modules on the main content area — all computation runs client-side, no backend required.
 
-The app is designed for **incremental development**: Weeks 11 and 12 are fully implemented (Week 11: MLE Bernoulli, MLE Poisson, Beta Distribution Explorer, Dirichlet Distribution Explorer; Week 12: CI for Proportion, CI Width Explorer, CI Interpretation Simulator, Credible Interval). Weeks 13–15 ship as structured placeholders that are ready to be filled in subsequent development sessions.
+The app is designed for **incremental development**: Weeks 11–14 are fully implemented (Week 11: MLE Bernoulli, MLE Poisson, Beta + Dirichlet Explorers; Week 12: CI for Proportion, CI Width, CI Interpretation, Credible Interval; Week 13: One-/Two-Sample Z-Tests, Z-Test untuk Proporsi, P-Value Drawbacks; Week 14: Probability via Simulation, Bloom Filter, MCMC for TSP/Knapsack). Week 15 ships as a structured placeholder ready to be filled in a subsequent development session.
 
 **Tech stack (required):**
 
@@ -128,7 +128,7 @@ Fields per week:
 | ---- | ---------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 11   | Estimasi Parameter     | MLE · Point Estimation · Beta & Dirichlet Distribution      | Mahasiswa mampu melakukan estimasi titik menggunakan MLE dan MAP                                                                                   |
 | 12   | Confidence Interval    | Z-Score · Frequentist CI · Credible Interval · Interpretasi | Mahasiswa mampu membangun dan menginterpretasikan confidence interval                                                                              |
-| 13   | Uji Hipotesis          | H₀ & H₁ · Uji Rata-rata · P-Value                           | Mahasiswa mampu merumuskan hipotesis nol dan alternatif dengan benar serta mampu melakukan uji hipotesis rata-rata dan menginterpretasikan p-value |
+| 13   | Uji Hipotesis          | Z-Test · Proporsi · A/B Test · P-Value Drawbacks            | Mahasiswa mampu merumuskan hipotesis nol dan alternatif dengan benar serta mampu melakukan uji hipotesis rata-rata dan menginterpretasikan p-value |
 | 14   | Aplikasi Komputasi     | Simulasi · MCMC · Bloom Filters                             | Mahasiswa mampu melakukan simulasi probabilitas menggunakan tools komputasi dan menerapkan MCMC serta Bloom Filters                                |
 | 15   | Review & Persiapan UAS | Rangkuman Minggu 9–14                                       | Ujian Akhir Semester                                                                                                                               |
 
@@ -675,109 +675,127 @@ Direct slide-13 dimension matrix populated with the **live** credible interval a
 | AC-12-7 | Module 12.4 with preset "Buku Tsun (n=12, k=11)" produces credible interval ≈ [0.7089, 0.9142] within ±0.001                          |
 | AC-12-8 | Module 12.4 with α₀=1, β₀=1 collapses to Beta(k+1, m+1) — visually identical posterior to Module 11.3 `BetaExplorer` for the same k,m |
 
----
+### Week 13 Modules
 
-## 5. Week 13 — Uji Hipotesis (PLACEHOLDER)
+| #       | Criterion                                                                                                                              |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| AC-13-1 | Module 13.1 preset "Buku Tsun SuperSAT" (μ₀=1059, σ=210, n=100, x̄=1113, right) produces Z = 54/21 ≈ 2.571 and p ≈ 0.0051 (note: Tsun 2020 p. 306 rounds Z to 2.14 by typo; our preset shows the correct arithmetic) |
+| AC-13-2 | Module 13.1 preset "MLOps latency" (μ₀=120, σ=24, n=64, x̄=113, left) produces Z ≈ −2.33 and p ≈ 0.0099 within ±0.001                   |
+| AC-13-3 | Module 13.1 chart shades the rejection region(s) per the selected alternative and highlights the observed Z                            |
+| AC-13-4 | Module 13.2 preset "Buku Washington" (p₀=0.75, n=137, k=131, right, α=0.01) produces Z ≈ 5.57 (book quotes 5.43 — same arithmetic typo as 13.1) and rejects H₀ at p ≪ 0.01 |
+| AC-13-5 | Module 13.2 preset "Antivirus 95% claim" (p₀=0.95, n=200, k=188, left, α=0.05) produces Z ≈ −0.65 and fails to reject                  |
+| AC-13-6 | Module 13.3 preset "NimbusStore A/B UI" produces Z ≈ 2.66 and two-sided p ≈ 0.008 within ±0.001                                        |
+| AC-13-7 | Module 13.4 n-effect sub-demo with δ=0.001 shows p < 0.05 at n ≳ 10⁶ while the "practically significant" verdict stays "tidak"          |
+| AC-13-8 | Module 13.4 p-hacking sub-demo (K seeded trials, peek-every-step) reports an inflated family-wise FPR well above the nominal α        |
+| AC-13-9 | All Week 13 derivation panels render the 4 mandated steps (Definisi → Parameter → Substitusi → Hasil) with live `String.raw` values   |
 
-**Source:** Tsun, 2020, Ch. 8.3; RPS Sub-CPMK: "Mahasiswa mampu merumuskan hipotesis nol dan alternatif dengan benar serta mampu melakukan uji hipotesis rata-rata dan menginterpretasikan p-value"
+### Week 14 Modules
 
-**Topics per RPS:**
-
-1. Uji hipotesis terhadap rata-rata populasi normal
-2. Uji kesamaan rata-rata dari 2 populasi normal
-3. Uji Hipotesis terhadap Rata-rata Populasi Normal
-4. Drawback P-Value
-
-### Placeholder view requirements
-
-The Week 13 page must render the week header (§2.5) followed by **four placeholder module cards**:
-
-#### Planned Module 13.1 — One-Sample Z-Test
-
-**Placeholder card content:**
-
-- Title: "Modul 1 — Uji Hipotesis Satu Sampel (Z-Test)"
-- Status badge: `[Segera Hadir]` in amber
-- Description: "Modul ini akan memandu mahasiswa merumuskan H₀ dan H₁, menghitung Z-statistic, dan menentukan apakah H₀ ditolak berdasarkan tingkat signifikansi (α)."
-- Planned formula preview:
-  $$Z = \frac{\bar{x} - \mu_0}{\sigma / \sqrt{n}}$$
-- Planned interactions note: "Input: μ₀, x̄, σ, n, α. Output: Z-statistic, p-value, keputusan tolak/gagal tolak H₀, visualisasi distribusi Normal dengan rejection region diarsir."
-
-#### Planned Module 13.2 — Two-Sample Z-Test
-
-**Placeholder card content:**
-
-- Title: "Modul 2 — Uji Kesamaan Dua Rata-rata"
-- Status badge: `[Segera Hadir]` in amber
-- Description: "Modul ini akan mendemonstrasikan pengujian apakah dua populasi memiliki rata-rata yang sama."
-- Planned formula preview:
-  $$Z = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{\dfrac{\sigma_1^2}{n_1} + \dfrac{\sigma_2^2}{n_2}}}$$
-- Planned interactions note: "Konteks: membandingkan performa dua versi API atau dua kelompok pengguna. Input dua set parameter, lihat keputusan uji secara live."
-
-#### Planned Module 13.3 — P-Value Visualizer
-
-**Placeholder card content:**
-
-- Title: "Modul 3 — Visualisasi P-Value"
-- Status badge: `[Segera Hadir]` in amber
-- Description: "Modul ini akan menunjukkan secara visual apa yang diwakili oleh p-value pada kurva distribusi Normal."
-- Planned interactions note: "Mahasiswa menggeser nilai Z-statistic dan melihat area p-value berubah secara real-time pada grafik. Membangun intuisi tentang hubungan antara Z, p-value, dan keputusan hipotesis."
-
-#### Planned Module 13.4 — Drawback of P-Value
-
-**Placeholder card content:**
-
-- Title: "Modul 4 — Kelemahan P-Value"
-- Status badge: `[Segera Hadir]` in amber
-- Description: "Modul ini akan mendemonstrasikan mengapa p-value sering disalahartikan, termasuk hubungannya dengan ukuran sampel dan effect size."
-- Planned interactions note: "Simulasi: tunjukkan bahwa n yang sangat besar selalu menghasilkan p < 0.05 meskipun perbedaan tidak bermakna secara praktis."
+| #       | Criterion                                                                                                                              |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| AC-14-1 | Module 14.1 scenario "Setidaknya satu 6" with n_trials = 100 000 produces an estimate within ±0.005 of the analytic 1 − (5/6)³ ≈ 0.421 |
+| AC-14-2 | Module 14.1 convergence chart is downsampled to ≤ ~500 points at large n_trials and includes a reference line at the analytic value   |
+| AC-14-3 | Module 14.1 "Re-run" advances the seed so the deterministic sample sequence differs on each click                                     |
+| AC-14-4 | Module 14.2 uses the EXACT `bloomFPR(m, k, n) = (1 − (1 − 1/m)ⁿ)ᵏ`; the asymptotic `e^(−kn/m)` form is NOT substituted                |
+| AC-14-5 | Module 14.2 `bloomHash(s, salt, m)` returns the same bit index on repeated calls with identical `(s, salt, m)` (determinism)          |
+| AC-14-6 | Module 14.2 insert/query panel reports TRUE-mungkin / FALSE-pasti-tidak based on whether all k bit indices for the query are set      |
+| AC-14-7 | Module 14.3 TSP "Auto-step" runs via `requestAnimationFrame`; resetting the seed reproduces the same trajectory bit-for-bit            |
+| AC-14-8 | Module 14.3 Knapsack mode rejects MCMC proposals that violate the capacity constraint and surfaces the rejected-move counter         |
+| AC-14-9 | All Week 14 derivation panels render the 4 mandated steps and (for 14.2/14.3) cite Theorem 9.4.39 / Algorithm 3 & 4 respectively      |
 
 ---
 
-## 6. Week 14 — Aplikasi Statistika pada Komputasi (PLACEHOLDER)
+## 5. Week 13 — Uji Hipotesis (FULLY IMPLEMENTED)
 
-**Source:** Tsun, 2020, Ch. 9; RPS Sub-CPMK: "Mahasiswa mampu melakukan simulasi probabilitas menggunakan tools komputasi dan menerapkan MCMC serta Bloom Filters"
+**Source:** Tsun, 2020, Ch. 8.3 (hal. 305–315); RPS Sub-CPMK: "Mahasiswa mampu merumuskan hipotesis nol dan alternatif dengan benar serta mampu melakukan uji hipotesis rata-rata dan menginterpretasikan p-value"
 
-**Topics per RPS:**
+**Slide deck of record:** `references/week13.md`. Module pedagogy is derived from slides 4–13.
 
-1. Probability via Simulation
-2. Markov Chain Monte Carlo (MCMC)
-3. Bloom Filters
+Week 13 renders four interactive modules in the main content area, each in its own `ModuleCard`. All Z-test math is centralized in `src/utils/mathUtils.ts` (`pValueFromZ`, `oneSampleZ`, `oneSampleZProportion`, `twoSampleZ`).
 
-### Placeholder view requirements
+### Module 13.1 — One-Sample Z-Test untuk Rata-rata
 
-The Week 14 page must render the week header (§2.5) followed by **three placeholder module cards**:
+Inputs: μ₀, x̄, σ, n, α, alternative direction (`>`, `<`, `≠`). Computes Z = (x̄ − μ₀)/(σ/√n), p-value via `pValueFromZ`, and a tolak/gagal-tolak decision against α. The chart shows the standard Normal PDF with the rejection region(s) shaded and the observed Z marker; the p-value tail is shaded distinctly.
 
-#### Planned Module 14.1 — Probability via Simulation
+**Presets:**
+- "Buku Tsun SuperSAT" — μ₀=1059, σ=210, n=100, x̄=1113, right-tail → Z = 54/21 ≈ 2.571, p ≈ 0.0051 (Tsun 2020 p. 306 quotes Z ≈ 2.14 / p ≈ 0.0162 by arithmetic typo; the module displays the correct value)
+- "MLOps latency" — μ₀=120, σ=24, n=64, x̄=113, left-tail → Z ≈ −2.33, p ≈ 0.0099
 
-**Placeholder card content:**
+### Module 13.2 — One-Sample Z-Test untuk Proporsi
 
-- Title: "Modul 1 — Simulasi Probabilitas (Monte Carlo)"
-- Status badge: `[Segera Hadir]` in amber
-- Description: "Modul ini akan mendemonstrasikan bagaimana simulasi komputasi dapat digunakan untuk memperkirakan probabilitas tanpa rumus analitik — misalnya, mengestimasi nilai π melalui simulasi titik acak."
-- Planned interactions note: "Mahasiswa memilih jumlah simulasi (10 hingga 10.000), melihat estimasi probabilitas konvergen ke nilai sesungguhnya secara live, beserta visualisasi scatter plot dan grafik konvergensi."
+Inputs: p₀, n, k (jumlah sukses), α, alternative. Computes σ₀ = √(p₀(1−p₀)/n), Z = (k/n − p₀)/σ₀, p-value, and decision. Chart shape mirrors 13.1.
 
-#### Planned Module 14.2 — MCMC Visualizer
+**Presets:**
+- "Buku Washington" — p₀=0.75, n=137, k=131, right-tail, α=0.01 → Z ≈ 5.57 (book quotes 5.43, same arithmetic typo), reject H₀
+- "Antivirus 95% claim" — p₀=0.95, n=200, k=188, left-tail, α=0.05 → Z ≈ −0.65, fail to reject
 
-**Placeholder card content:**
+### Module 13.3 — Two-Sample Z-Test (A/B Test)
 
-- Title: "Modul 2 — Markov Chain Monte Carlo (MCMC)"
-- Status badge: `[Segera Hadir]` in amber
-- Description: "Modul ini akan memvisualisasikan bagaimana MCMC menjelajahi ruang probabilitas untuk mensampel dari distribusi target yang kompleks, menggunakan algoritma Metropolis-Hastings sederhana."
-- Planned formula preview (target distribution example):
-  $$\pi(\theta) \propto e^{-\theta^2/2}$$
-- Planned interactions note: "Step-by-step animasi chain berjalan: proposal → acceptance/rejection → trace plot. Mahasiswa dapat mengatur step size dan jumlah iterasi."
+Inputs: x̄₁, σ₁, n₁, x̄₂, σ₂, n₂, α, alternative. Computes Z = (x̄₁ − x̄₂)/√(σ₁²/n₁ + σ₂²/n₂), p-value (two-sided default), and decision.
 
-#### Planned Module 14.3 — Bloom Filter Simulator
+**Preset:**
+- "NimbusStore A/B UI" (slide 10) — A: x̄=4.2 σ=1.0 n=80; B: x̄=3.8 σ=0.9 n=80; two-sided, α=0.05 → Z ≈ 2.66, p ≈ 0.008
 
-**Placeholder card content:**
+### Module 13.4 — Kelemahan P-Value
 
-- Title: "Modul 3 — Bloom Filter"
-- Status badge: `[Segera Hadir]` in amber
-- Description: "Modul ini akan mensimulasikan cara kerja Bloom Filter sebagai struktur data probabilistik untuk membership testing, termasuk konsep false positive rate."
-- Planned formula preview (false positive rate):
-  $$P(\text{false positive}) \approx \left(1 - e^{-kn/m}\right)^k$$
-- Planned interactions note: "Input: ukuran filter (m), jumlah hash functions (k), jumlah elemen (n). Output: visualisasi bit array, false positive rate, dan demo insert/query."
+Pedagogical module surfacing the two classic p-value failure modes from slides 12–13:
+
+1. **n-effect sub-demo** — fix a tiny true effect (δ ≈ 0.001 in conversion rate), slide n on a log scale 100 → 1,000,000; the live table shows p-value crashing to 0 while practical significance stays "tidak signifikan secara praktis".
+2. **P-hacking / optional stopping sub-demo** — simulate K trials of "peek every step; stop if p<0.05" using `mulberry32`. Show the family-wise false positive rate vs the single-shot test.
+
+Plus the statistical-vs-practical 2×2 matrix from slide 13 with a live verdict for the current state.
+
+### Derivation panel structure (all four modules)
+
+Every module wraps its math in `<DerivationPanel>` with at least the 4 mandated `<BlockMath>` steps from CLAUDE.md (Definisi → Parameter dari data → Substitusi → Hasil), citing Tsun, 2020, hal. 305–315. Live state is substituted via `String.raw` template literals.
+
+---
+
+## 6. Week 14 — Aplikasi Statistika pada Komputasi (FULLY IMPLEMENTED)
+
+**Source:** Tsun, 2020, Ch. 9 (Probability via Simulation, MCMC, Bloom Filters); RPS Sub-CPMK: "Mahasiswa mampu melakukan simulasi probabilitas menggunakan tools komputasi dan menerapkan MCMC serta Bloom Filters"
+
+**Slide deck of record:** `references/week14.md`. Module pedagogy is derived from slides 4–13.
+
+Week 14 renders three interactive modules in the main content area, each in its own `ModuleCard`. All shared math (PRNG, Bloom hash + FPR) lives in `src/utils/mathUtils.ts`; the MCMC step kernels (Algorithm 3 Knapsack, Algorithm 4 TSP) are local to `MCMCVisualizer.tsx` since they are not reused.
+
+### Module 14.1 — Probability via Simulation
+
+A segmented control switches between three book scenarios, all driven by a shared seeded `mulberry32` PRNG with a "Re-run" button:
+
+- **(a) Berapa lemparan sampai sukses** — Geometric(p). Estimates E[X] = 1/p (slide 5 book example).
+- **(b) Tepat 13 fixed points dalam shuffle 100** — Fisher-Yates shuffle simulation; estimates the matching probability (slide 6 book example). Analytic reference uses e⁻¹/13!.
+- **(c) Setidaknya satu 6 dalam 3 lemparan dadu** — analytic value 1 − (5/6)³ ≈ 0.421 (refleksi #2, slide 16).
+
+Common inputs: `n_trials` on a log slider 10 → 100,000. Outputs: live estimate, analytic value, absolute error, and a Recharts `LineChart` of the running estimate vs trial index with a horizontal reference line at the analytic value. Convergence curve is downsampled to ~500 points for performance at large `n_trials`.
+
+### Module 14.2 — Bloom Filter Simulator
+
+Inputs: m (bit-array length per row, 64–4096), k (hash count, 1–10), n (items inserted, 0–500).
+
+Computed:
+- **Theoretical FPR** via the exact `bloomFPR(m, k, n) = (1 − (1 − 1/m)ⁿ)ᵏ` (Theorem 9.4.39, Tsun 2020 hal. 329). Do **not** substitute the asymptotic `e^(−kn/m)` approximation.
+- **Empirical FPR** from a fixed test set of "URLs" queried against the simulated filter.
+
+Visualizations:
+- **(a) Bit-array heatmap** — all k rows × m squares; lit squares mark set bits. Updates as n increases.
+- **(b) FPR chart** — theoretical FPR vs n curve for the current (m, k); `ReferenceLine` at the current n; empirical FPR overlay as a scatter point.
+
+Interactive panel: free-text "insert URL" / "check URL" surfacing the k bit indices touched (via `bloomHash(str, salt, m)`, FNV-1a-style deterministic) and the contains() verdict ("TRUE — mungkin ada" / "FALSE — pasti tidak ada").
+
+**Preset:** "Google Chrome SafeBrowsing" (m = 900 000, k = 30, n = 5 × 10⁶) — heatmap is capped for sane rendering while the theoretical FPR display still shows the production-scale figure.
+
+### Module 14.3 — MCMC Visualizer (TSP + Knapsack toggle)
+
+Segmented control selects "TSP" or "Knapsack"; both share the Metropolis acceptance kernel `e^(−Δ/T)`. The PRNG is `mulberry32` keyed by user-selected seed so runs are reproducible.
+
+**TSP mode** (slide 13): n_cities slider 5–25, temperature T slider 0–50, step count. Seeded random city coordinates on the unit square; the current route is drawn as a polyline through the points. Run/Step/Reset buttons plus an "Auto-step" toggle advancing via `requestAnimationFrame`. Chart: tour length vs iteration with the current best-tour overlay.
+
+**Knapsack mode** (slide 12): n items slider 5–20, capacity W slider, T slider. Random weights/values; the selection bitmask is rendered as a row of read-only toggle squares driven by the MCMC chain. Charts: current value vs iteration, plus a counter of MCMC moves rejected for violating the capacity constraint.
+
+### Derivation panel structure (all three modules)
+
+Every module wraps its math in `<DerivationPanel>` with at least the 4 mandated `<BlockMath>` steps from CLAUDE.md (Definisi → Parameter dari data → Substitusi → Hasil). Module 14.2 cites Theorem 9.4.39; Module 14.3 reproduces the Algorithm 3 / Algorithm 4 pseudocode and derives the Metropolis acceptance term `e^(−Δ/T)`.
 
 ---
 
@@ -918,6 +936,15 @@ All formulas must be implemented exactly as specified:
 | Proportion CI Δ              | `z * Math.sqrt(thetaHat * (1 - thetaHat) / n)` via `bernoulliCI`                                | `z * Math.sqrt(thetaHat * (1 - thetaHat)) / n` ← `/n` outside the sqrt |
 | Proportion CI clamp          | Clamp final lower/upper to `[0, 1]` (proportion only)                                           | Clamping σ̂ or $\hat\theta$ (changes the math)                          |
 | PRNG for Monte Carlo CI      | `mulberry32(seed)` — seeded, deterministic; seed advances on user trigger                       | `Math.random()` — non-deterministic, not reproducible                  |
+| p-value (right tail)         | `1 − normalCDF(z)` via `pValueFromZ(z, "greater")`                                              | `normalCDF(z)` (left tail)                                             |
+| p-value (left tail)          | `normalCDF(z)` via `pValueFromZ(z, "less")`                                                     | `1 − normalCDF(z)`                                                     |
+| p-value (two-sided)          | `2 * (1 − normalCDF(|z|))` via `pValueFromZ(z, "two")`                                          | `2 * normalCDF(z)` ignoring the sign                                   |
+| One-sample Z (mean)          | `(x̄ − μ₀) / (σ/√n)` via `oneSampleZ`                                                            | Use of `s` (sample stdev) instead of σ (known)                         |
+| One-sample Z (proportion) σ₀ | `√(p₀(1 − p₀)/n)` — under H₀                                                                    | `√(p̂(1 − p̂)/n)` — Wald σ̂, valid for CI but not for the H₀ test         |
+| Two-sample Z (means)         | `(x̄₁ − x̄₂) / √(σ₁²/n₁ + σ₂²/n₂)` via `twoSampleZ`                                              | Pooled-variance form (would assume σ₁ = σ₂)                            |
+| Bloom filter FPR             | `(1 − (1 − 1/m)ⁿ)ᵏ` via `bloomFPR(m, k, n)` — EXACT (Theorem 9.4.39)                            | `(1 − e^(−kn/m))ᵏ` — asymptotic approximation only                     |
+| Bloom hash                   | `bloomHash(str, salt, m)` — FNV-1a + final avalanche; deterministic for `(str, salt, m)`        | `Math.random()` or non-deterministic JS string hash                    |
+| MCMC acceptance              | Metropolis ratio `min(1, e^(−Δ/T))`; reject if invalid (e.g. knapsack capacity)                 | Always-accept downhill moves only (greedy) — destroys ergodicity       |
 
 ---
 
@@ -934,9 +961,9 @@ src/
 │   └── DerivationPanel.jsx    # Collapsible derivation wrapper
 ├── pages/
 │   ├── Week11Page.jsx         # Fully implemented
-│   ├── Week12Page.jsx         # Placeholder
-│   ├── Week13Page.jsx         # Placeholder
-│   ├── Week14Page.jsx         # Placeholder
+│   ├── Week12Page.jsx         # Fully implemented
+│   ├── Week13Page.jsx         # Fully implemented
+│   ├── Week14Page.jsx         # Fully implemented
 │   └── Week15Page.jsx         # Placeholder
 ├── modules/
 │   ├── week11/
@@ -949,7 +976,15 @@ src/
 │   │   ├── CIWidthExplorer.jsx
 │   │   ├── CIInterpretationSimulator.jsx
 │   │   └── CredibleInterval.jsx
-│   └── (week13/, week14/, etc. added in future sessions)
+│   ├── week13/
+│   │   ├── OneSampleMeanTest.jsx
+│   │   ├── OneSampleProportionTest.jsx
+│   │   ├── TwoSampleTest.jsx
+│   │   └── PValueDrawbacks.jsx
+│   └── week14/
+│       ├── ProbabilityViaSimulation.jsx
+│       ├── BloomFilter.jsx
+│       └── MCMCVisualizer.jsx
 └── utils/
     ├── mathUtils.js           # lnGamma, betaPDF, dirichletPDF, all math functions
     └── weekConfig.js          # Week metadata (titles, sub-CPMK, status)
@@ -969,18 +1004,18 @@ export const WEEKS = [
   {
     number: 12,
     title: "Confidence Interval",
-    subtitle: "Interval Kepercayaan · Interpretasi CI",
+    subtitle: "Z-Score · Frequentist CI · Credible Interval · Interpretasi",
     subCPMK:
       "Mahasiswa mampu membangun dan menginterpretasikan confidence interval",
-    status: "placeholder",
+    status: "available",
   },
   {
     number: 13,
     title: "Uji Hipotesis",
-    subtitle: "H₀ & H₁ · Uji Rata-rata · P-Value",
+    subtitle: "Z-Test · Proporsi · A/B Test · P-Value Drawbacks",
     subCPMK:
       "Mahasiswa mampu merumuskan hipotesis nol dan alternatif dengan benar serta mampu melakukan uji hipotesis rata-rata dan menginterpretasikan p-value",
-    status: "placeholder",
+    status: "available",
   },
   {
     number: 14,
@@ -988,7 +1023,7 @@ export const WEEKS = [
     subtitle: "Simulasi · MCMC · Bloom Filters",
     subCPMK:
       "Mahasiswa mampu melakukan simulasi probabilitas menggunakan tools komputasi dan menerapkan MCMC serta Bloom Filters",
-    status: "placeholder",
+    status: "available",
   },
   {
     number: 15,
@@ -1024,8 +1059,8 @@ When a week is fully implemented, change its `status` to `"available"` — the s
 | AC-N1 | App loads at `/` and immediately redirects to `/week/11`                                              |
 | AC-N2 | Clicking any week in the sidebar navigates to its route and updates the active highlight              |
 | AC-N3 | All five week routes render without crashing — including placeholder routes                           |
-| AC-N4 | Week 11 sidebar item shows a green "available" indicator; Weeks 12–15 show amber "Segera Hadir" badge |
-| AC-N5 | Progress bar shows "1 dari 5 minggu tersedia" on initial load                                         |
+| AC-N4 | Weeks 11–14 sidebar items show a green "available" indicator; Week 15 shows amber "Segera Hadir" badge |
+| AC-N5 | Progress bar shows "4 dari 5 minggu tersedia" (80%) on initial load                                    |
 | AC-N6 | On mobile (< 768px), sidebar is hidden by default and accessible via hamburger menu                   |
 
 ### Week 11 Modules
@@ -1052,8 +1087,8 @@ When a week is fully implemented, change its `status` to `"available"` — the s
 
 | #     | Criterion                                                                                                                                                     |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AC-P1 | Each placeholder week (12–15) renders the correct week header with matching title and Sub-CPMK from RPS                                                       |
-| AC-P2 | Each placeholder week renders the correct number of placeholder module cards (Week 13: 4, Week 14: 3, Week 15: 2) — Week 12 is now fully implemented (see §4) |
+| AC-P1 | Week 15 (the only remaining placeholder) renders the correct week header with matching title and Sub-CPMK from RPS                                            |
+| AC-P2 | Week 15 renders 2 placeholder module cards — Weeks 12, 13, and 14 are now fully implemented (see §4, §5, §6)                                                  |
 | AC-P3 | All formula previews in placeholder cards render correctly via KaTeX                                                                                          |
 | AC-P4 | No placeholder card renders any interactive control (no inputs, sliders, or buttons other than the nav)                                                       |
 | AC-P5 | Placeholder cards use dashed border and muted background, visually distinct from Week 11 module cards                                                         |
