@@ -21,20 +21,12 @@ type Preset = {
   m: number;
   k: number;
   n: number;
-  note?: string;
 };
 
 const PRESETS: Preset[] = [
   { label: "Default (m=1024, k=4, n=200)", m: 1024, k: 4, n: 200 },
   { label: "Kecil (m=128, k=3, n=40)", m: 128, k: 3, n: 40 },
   { label: "Padat (m=512, k=6, n=400)", m: 512, k: 6, n: 400 },
-  {
-    label: "Google Chrome (m=900.000, k=30, n=5·10⁶)",
-    m: 900_000,
-    k: 30,
-    n: 5_000_000,
-    note: "Heatmap dilewati pada ukuran ini; FPR teoritis tetap dihitung dari rumus.",
-  },
 ];
 
 const M_MIN = 64;
@@ -50,6 +42,13 @@ const HEATMAP_MAX_CELLS = 16_000;
 // FPR chart: sweep n ∈ [0, N_PLOT_MAX] holding (m, k) fixed.
 const N_PLOT_MAX = 800;
 
+// Single source of truth for the per-run seed. Used both inside the useMemo
+// (when building the bit array) and outside (when initialising queryStr to a
+// guaranteed-member URL), so the two always agree.
+const SEED_BASE = 911;
+const SEED_STEP = 16777619;
+const seedFromRun = (runCounter: number) => SEED_BASE + runCounter * SEED_STEP;
+
 // Deterministic universe of candidate URLs for the empirical FPR test. Built
 // once per (m, k, n, run) — see useMemo. We use a generic URL template so the
 // pedagogy maps to the Chrome example.
@@ -60,6 +59,13 @@ function buildInsertedUrls(n: number, rng: () => number): string[] {
     out.push(`https://example.com/page/${id}`);
   }
   return out;
+}
+
+// First auto-inserted URL of a given run. This is exactly insertedUrls[0]
+// inside the useMemo, but available synchronously so queryStr can be seeded
+// to a guaranteed member of the bit array.
+function firstMemberOfRun(runCounter: number): string {
+  return buildInsertedUrls(1, mulberry32(seedFromRun(runCounter)))[0];
 }
 
 function buildTestUrls(count: number, rng: () => number): string[] {
@@ -76,7 +82,7 @@ export function BloomFilter() {
   const [k, setK] = useState(4);
   const [n, setN] = useState(200);
   const [runCounter, setRunCounter] = useState(0);
-  const [queryStr, setQueryStr] = useState("https://example.com/page/0");
+  const [queryStr, setQueryStr] = useState(() => firstMemberOfRun(0));
   const [insertStr, setInsertStr] = useState("");
   // Manual inserts persist across re-runs of the auto-population? No — keep
   // them ephemeral: a Set of additional URLs the user typed in via "Insert".
@@ -98,6 +104,8 @@ export function BloomFilter() {
   const {
     bits,
     empiricalFPR,
+    empiricalFP,
+    empiricalTests,
     queryBits,
     queryContains,
     fprCurve,
@@ -106,18 +114,18 @@ export function BloomFilter() {
     activeK,
     activeN,
     truncated,
+    sampleMembers,
+    sampleNonMembers,
   } = useMemo(() => {
-    // Effective values for the heatmap/empirical pass: clamp m × k to avoid
-    // OOM on the Google Chrome preset. The FPR chart still uses the real m,k.
+    // Effective values for the heatmap/empirical pass: clamp m × k to keep
+    // DOM rendering reasonable if a user picks very large sliders.
     const cells = m * k;
     const truncated = cells > HEATMAP_MAX_CELLS;
     const activeM = truncated ? Math.min(m, 1024) : m;
     const activeK = truncated ? Math.min(k, 10) : k;
-    // Cap the inserted count too — running 5e6 inserts in the browser is
-    // infeasible; the analytic FPR is still informative on its own.
     const activeN = truncated ? Math.min(n, 500) : n;
 
-    const seed = 911 + runCounter * 16777619;
+    const seed = seedFromRun(runCounter);
     const rng = mulberry32(seed);
     const bits: Uint8Array[] = Array.from(
       { length: activeK },
@@ -133,7 +141,8 @@ export function BloomFilter() {
     }
 
     // Empirical FPR: how many of TEST_COUNT non-inserted URLs return "yes"?
-    const TEST_COUNT = 2000;
+    // Bumped to 10 000 so the estimator can resolve FPRs down to ~1e-4.
+    const TEST_COUNT = 10_000;
     const testRng = mulberry32(seed ^ 0xa5a5a5a5);
     const testUrls = buildTestUrls(TEST_COUNT, testRng);
     let falsePositives = 0;
@@ -148,6 +157,8 @@ export function BloomFilter() {
       if (all) falsePositives += 1;
     }
     const empiricalFPR = falsePositives / TEST_COUNT;
+    const empiricalFP = falsePositives;
+    const empiricalTests = TEST_COUNT;
 
     // Query indices + verdict — always uses the actual m, k the user picked
     // for the heatmap (= activeM, activeK).
@@ -167,9 +178,16 @@ export function BloomFilter() {
     }
     const empiricalPoint = [{ n: activeN, fpr: empiricalFPR }];
 
+    // A handful of real members + non-members to expose in the UI so students
+    // can click to test "definitely a member → TRUE" vs "random URL → FALSE".
+    const sampleMembers = insertedUrls.slice(0, 3);
+    const sampleNonMembers = testUrls.slice(0, 3);
+
     return {
       bits,
       empiricalFPR,
+      empiricalFP,
+      empiricalTests,
       queryBits,
       queryContains,
       fprCurve,
@@ -178,6 +196,8 @@ export function BloomFilter() {
       activeK,
       activeN,
       truncated,
+      sampleMembers,
+      sampleNonMembers,
     };
   }, [m, k, n, manualInserts, queryStr, runCounter]);
 
@@ -260,9 +280,7 @@ export function BloomFilter() {
             className="flex items-baseline justify-between text-sm font-semibold text-foreground"
           >
             <span>n — URL ter-insert</span>
-            <span className="font-mono text-primary">
-              {n.toLocaleString()}
-            </span>
+            <span className="font-mono text-primary">{n.toLocaleString()}</span>
           </label>
           <input
             id="bf-n"
@@ -291,8 +309,10 @@ export function BloomFilter() {
         <button
           type="button"
           onClick={() => {
-            setRunCounter((c) => c + 1);
+            const next = runCounter + 1;
+            setRunCounter(next);
             setManualInserts([]);
+            setQueryStr(firstMemberOfRun(next));
           }}
           className="ml-auto rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
         >
@@ -309,7 +329,11 @@ export function BloomFilter() {
         <Stat
           label="FPR empiris"
           value={
-            truncated ? "—" : empiricalFPR.toExponential(3)
+            truncated
+              ? "—"
+              : empiricalFP === 0
+                ? `0 / ${empiricalTests.toLocaleString()}`
+                : `${empiricalFPR.toExponential(3)} (${empiricalFP}/${empiricalTests.toLocaleString()})`
           }
         />
         <Stat label="bit terpakai" value={`${activeK} × ${activeM}`} />
@@ -333,9 +357,7 @@ export function BloomFilter() {
         </p>
 
         <p className="font-semibold">Step 2 — Parameter dari data:</p>
-        <BlockMath
-          math={String.raw`m = ${m},\quad k = ${k},\quad n = ${n}`}
-        />
+        <BlockMath math={String.raw`m = ${m},\quad k = ${k},\quad n = ${n}`} />
         <BlockMath
           math={String.raw`1 - \tfrac{1}{m} = 1 - \tfrac{1}{${m}} = ${(1 - 1 / m).toFixed(6)}`}
         />
@@ -350,16 +372,29 @@ export function BloomFilter() {
           math={String.raw`P(\text{FP}) = ${theoreticalFPR.toExponential(4)}`}
         />
         <p className="font-sans text-foreground">
-          {truncated
-            ? "Heatmap dan FPR empiris dilewati pada ukuran preset Google Chrome (m × k = "
-            : "Eksperimen empiris (test set "}
-          {truncated
-            ? `${(m * k).toLocaleString()} sel > batas ${HEATMAP_MAX_CELLS.toLocaleString()})`
-            : "2.000 URL non-anggota) menghasilkan FPR = "}
-          {truncated ? "; FPR teoritis tetap valid dari rumus." : (
+          {truncated ? (
             <>
-              <strong>{empiricalFPR.toExponential(3)}</strong>, sesuai estimasi
-              teoritis.
+              Heatmap dan FPR empiris dilewati pada ukuran ini (m × k ={" "}
+              {(m * k).toLocaleString()} sel &gt; batas{" "}
+              {HEATMAP_MAX_CELLS.toLocaleString()}); FPR teoritis tetap valid
+              dari rumus.
+            </>
+          ) : empiricalFP === 0 ? (
+            <>
+              Eksperimen empiris (test set {empiricalTests.toLocaleString()} URL
+              non-anggota) menghasilkan <strong>0 false positive</strong> — di
+              bawah resolusi statistik (FPR teoritis ≈{" "}
+              <strong>{theoreticalFPR.toExponential(3)}</strong>, lebih kecil
+              dari ambang deteksi 1/{empiricalTests.toLocaleString()} ={" "}
+              {(1 / empiricalTests).toExponential(1)}). Naikkan <em>n</em> atau
+              turunkan <em>m</em> untuk melihat false positive terdeteksi.
+            </>
+          ) : (
+            <>
+              Eksperimen empiris (test set {empiricalTests.toLocaleString()} URL
+              non-anggota) menghasilkan <strong>{empiricalFP}</strong> false
+              positive, FPR = <strong>{empiricalFPR.toExponential(3)}</strong>,
+              sesuai estimasi teoritis.
             </>
           )}
         </p>
@@ -367,7 +402,10 @@ export function BloomFilter() {
 
       <div>
         <p className="mb-2 text-sm font-semibold text-foreground">
-          Bit array — {canRenderHeatmap ? `${activeK} baris × ${activeM} kolom` : "tidak dirender pada ukuran ini"}
+          Bit array —{" "}
+          {canRenderHeatmap
+            ? `${activeK} baris × ${activeM} kolom`
+            : "tidak dirender pada ukuran ini"}
         </p>
         {canRenderHeatmap ? (
           <div className="rounded-md border border-border bg-muted p-2">
@@ -420,10 +458,10 @@ export function BloomFilter() {
         ) : (
           <p className="rounded-md border border-dashed border-border bg-muted p-3 text-xs text-muted-foreground">
             Heatmap dilewati: m × k = {(m * k).toLocaleString()} sel melebihi
-            batas {HEATMAP_MAX_CELLS.toLocaleString()}. Untuk preset Google
-            Chrome (m=900.000, k=30), FPR teoritis ={" "}
-            <strong>{theoreticalFPR.toExponential(3)}</strong> tetap valid —
-            ini adalah inti pedagogis Tsun §9.4: rumus tidak butuh simulasi.
+            batas {HEATMAP_MAX_CELLS.toLocaleString()}. FPR teoritis ={" "}
+            <strong>{theoreticalFPR.toExponential(3)}</strong> tetap valid dari
+            rumus — ini adalah inti pedagogis Tsun §9.4: rumus tidak butuh
+            simulasi.
           </p>
         )}
       </div>
@@ -478,6 +516,46 @@ export function BloomFilter() {
                 : "FALSE — pasti tidak ada"}
             </span>
           </div>
+          {(sampleMembers.length > 0 || sampleNonMembers.length > 0) && (
+            <div className="mt-3 space-y-1.5">
+              {sampleMembers.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] font-semibold text-muted-foreground">
+                    anggota:
+                  </span>
+                  {sampleMembers.map((url) => (
+                    <button
+                      key={url}
+                      type="button"
+                      onClick={() => setQueryStr(url)}
+                      title={url}
+                      className="max-w-50 truncate rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 font-mono text-[11px] text-amber-900 hover:bg-amber-100"
+                    >
+                      {url.replace("https://example.com/page/", "…/")}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {sampleNonMembers.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] font-semibold text-muted-foreground">
+                    bukan anggota:
+                  </span>
+                  {sampleNonMembers.map((url) => (
+                    <button
+                      key={url}
+                      type="button"
+                      onClick={() => setQueryStr(url)}
+                      title={url}
+                      className="max-w-50 truncate rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono text-[11px] text-emerald-900 hover:bg-emerald-100"
+                    >
+                      {url.replace("https://test.example.com/q/", "…/")}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

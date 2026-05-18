@@ -20,7 +20,7 @@ There are no tests in this project.
 - **Poisson uses log-likelihood**, not raw likelihood — raw form underflows.
 - **`betaPDF` must use the Lanczos `lnGamma`** in `src/utils/mathUtils.ts`; do not swap in an alternative gamma.
 - **Z-test for proportion uses σ₀ under H₀**, i.e. `σ₀ = √(p₀(1−p₀)/n)` — not the Wald σ̂ from the CI module. The CI module uses `p̂` because there is no null hypothesis.
-- **Bloom filter FPR uses the EXACT formula `(1 − (1 − 1/m)ⁿ)ᵏ`** (Theorem 9.4.39, Tsun 2020 p. 329), not the asymptotic `e^(−kn/m)` approximation. `bloomHash` is FNV-1a-style and must stay deterministic for `(str, salt, m)`.
+- **Bloom filter FPR uses the EXACT formula `(1 − (1 − 1/m)ⁿ)ᵏ`** (Theorem 9.4.39, Tsun 2020 p. 329), not the asymptotic `e^(−kn/m)` approximation. `bloomHash` is FNV-1a-style and must (a) stay deterministic for `(str, salt, m)` and (b) return an integer in `[0, m)`. JS bitwise ops coerce to signed int32, so every `^=` must be followed by `>>> 0` before the final `% m`; otherwise negative indices silently drop `Uint8Array` inserts and read as `undefined !== 1` on query → false negatives for real members.
 - **MCMC modules use `mulberry32`** (seeded) so runs are reproducible — never `Math.random()`.
 - **Tsun (2020) hal. 306 and 308 contain arithmetic typos** (SuperSAT: book says Z ≈ 2.14, correct is 2.57; Washington: book says Z ≈ 5.43, correct is 5.57). Modules 13.1 and 13.2 surface the correct value; FRD AC-13-1 / AC-13-4 document the discrepancy.
 

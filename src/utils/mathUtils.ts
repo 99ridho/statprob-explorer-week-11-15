@@ -285,16 +285,20 @@ export function twoSampleZ(
 // [0, m). The salt parameter makes k independent hash functions from a single
 // primitive: h_i(x) = bloomHash(x, i, m). Deterministic given (str, salt, m).
 export function bloomHash(str: string, salt: number, m: number): number {
+  // Every `^=` reinterprets h as signed int32; without re-coercing to uint32
+  // before the final modulo, h can be negative and JS's `%` preserves the
+  // sign, yielding negative indices that silently drop inserts on Uint8Array
+  // and read as undefined on query (→ false negatives for real members).
   let h = (2166136261 ^ (salt | 0)) >>> 0;
   for (let i = 0; i < str.length; i++) {
     h ^= str.charCodeAt(i);
     h = Math.imul(h, 16777619) >>> 0;
   }
-  h ^= h >>> 16;
+  h = (h ^ (h >>> 16)) >>> 0;
   h = Math.imul(h, 0x7feb352d) >>> 0;
-  h ^= h >>> 15;
+  h = (h ^ (h >>> 15)) >>> 0;
   h = Math.imul(h, 0x846ca68b) >>> 0;
-  h ^= h >>> 16;
+  h = (h ^ (h >>> 16)) >>> 0;
   return m > 0 ? h % m : 0;
 }
 
