@@ -12,7 +12,6 @@ import { Week11Page } from "./pages/Week11Page";
 import { Week12Page } from "./pages/Week12Page";
 import { Week13Page } from "./pages/Week13Page";
 import { Week14Page } from "./pages/Week14Page";
-import { Week15Page } from "./pages/Week15Page";
 
 function Shell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -37,7 +36,6 @@ function Shell() {
               <Route path="/week/12" element={<Week12Page />} />
               <Route path="/week/13" element={<Week13Page />} />
               <Route path="/week/14" element={<Week14Page />} />
-              <Route path="/week/15" element={<Week15Page />} />
               <Route path="*" element={<Navigate to="/week/11" replace />} />
             </Routes>
           </div>

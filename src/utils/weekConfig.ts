@@ -13,17 +13,16 @@ export const WEEKS: WeekConfig[] = [
     number: 11,
     title: "Estimasi Parameter",
     subtitle: "MLE · Point Estimation · Beta & Dirichlet Distribution",
-    subCPMK:
-      "Mahasiswa mampu melakukan estimasi titik menggunakan MLE dan MAP",
+    subCPMK: "Mahasiswa mampu melakukan estimasi titik menggunakan MLE dan MAP",
     status: "available",
   },
   {
     number: 12,
     title: "Confidence Interval",
-    subtitle: "Interval Kepercayaan · Interpretasi CI",
+    subtitle: "Z-Score · Frequentist CI · Credible Interval · Interpretasi",
     subCPMK:
       "Mahasiswa mampu membangun dan menginterpretasikan confidence interval",
-    status: "placeholder",
+    status: "available",
   },
   {
     number: 13,
@@ -39,13 +38,6 @@ export const WEEKS: WeekConfig[] = [
     subtitle: "Simulasi · MCMC · Bloom Filters",
     subCPMK:
       "Mahasiswa mampu melakukan simulasi probabilitas menggunakan tools komputasi dan menerapkan MCMC serta Bloom Filters",
-    status: "placeholder",
-  },
-  {
-    number: 15,
-    title: "Review & Persiapan UAS",
-    subtitle: "Rangkuman Minggu 9–14",
-    subCPMK: "Ujian Akhir Semester",
     status: "placeholder",
   },
 ];

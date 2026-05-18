@@ -6,7 +6,7 @@
 **Target pengguna:** Mahasiswa Program Studi Sistem dan Teknologi Informasi, Fakultas Teknik, Universitas Negeri Jakarta  
 **Referensi materi:** Alex Tsun, _Probability & Statistics with Applications to Computing_, 2020  
 **Dokumen ini ditujukan untuk:** Implementasi via Claude Code  
-**Versi:** 2.0 — Multi-week navigation edition
+**Versi:** 2.1 — Week 12 (Confidence Interval) fully implemented
 
 ---
 
@@ -14,7 +14,7 @@
 
 A single-page web application (SPA) covering **Weeks 11–15** of the Statistika dan Probabilitas course. The app uses a **persistent week-based navigation sidebar** to switch between weekly content views. Each week renders its own set of interactive modules on the main content area — all computation runs client-side, no backend required.
 
-The app is designed for **incremental development**: Week 11 is fully implemented (MLE Bernoulli, MLE Poisson, Beta Distribution Explorer, and Dirichlet Distribution Explorer), Weeks 12–15 ship as structured placeholders that are ready to be filled in subsequent development sessions.
+The app is designed for **incremental development**: Weeks 11 and 12 are fully implemented (Week 11: MLE Bernoulli, MLE Poisson, Beta Distribution Explorer, Dirichlet Distribution Explorer; Week 12: CI for Proportion, CI Width Explorer, CI Interpretation Simulator, Credible Interval). Weeks 13–15 ship as structured placeholders that are ready to be filled in subsequent development sessions.
 
 **Tech stack (required):**
 
@@ -124,13 +124,13 @@ Every week page (implemented or placeholder) must render a **week header** at th
 
 Fields per week:
 
-| Week | Title                  | Subtitle (topics)                          | Sub-CPMK                                                                                                                                           |
-| ---- | ---------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 11   | Estimasi Parameter     | MLE · Point Estimation · Beta & Dirichlet Distribution | Mahasiswa mampu melakukan estimasi titik menggunakan MLE dan MAP                                                                                   |
-| 12   | Confidence Interval    | Interval Kepercayaan · Interpretasi CI     | Mahasiswa mampu membangun dan menginterpretasikan confidence interval                                                                              |
-| 13   | Uji Hipotesis          | H₀ & H₁ · Uji Rata-rata · P-Value          | Mahasiswa mampu merumuskan hipotesis nol dan alternatif dengan benar serta mampu melakukan uji hipotesis rata-rata dan menginterpretasikan p-value |
-| 14   | Aplikasi Komputasi     | Simulasi · MCMC · Bloom Filters            | Mahasiswa mampu melakukan simulasi probabilitas menggunakan tools komputasi dan menerapkan MCMC serta Bloom Filters                                |
-| 15   | Review & Persiapan UAS | Rangkuman Minggu 9–14                      | Ujian Akhir Semester                                                                                                                               |
+| Week | Title                  | Subtitle (topics)                                           | Sub-CPMK                                                                                                                                           |
+| ---- | ---------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 11   | Estimasi Parameter     | MLE · Point Estimation · Beta & Dirichlet Distribution      | Mahasiswa mampu melakukan estimasi titik menggunakan MLE dan MAP                                                                                   |
+| 12   | Confidence Interval    | Z-Score · Frequentist CI · Credible Interval · Interpretasi | Mahasiswa mampu membangun dan menginterpretasikan confidence interval                                                                              |
+| 13   | Uji Hipotesis          | H₀ & H₁ · Uji Rata-rata · P-Value                           | Mahasiswa mampu merumuskan hipotesis nol dan alternatif dengan benar serta mampu melakukan uji hipotesis rata-rata dan menginterpretasikan p-value |
+| 14   | Aplikasi Komputasi     | Simulasi · MCMC · Bloom Filters                             | Mahasiswa mampu melakukan simulasi probabilitas menggunakan tools komputasi dan menerapkan MCMC serta Bloom Filters                                |
+| 15   | Review & Persiapan UAS | Rangkuman Minggu 9–14                                       | Ujian Akhir Semester                                                                                                                               |
 
 ---
 
@@ -367,22 +367,22 @@ Show how Dirichlet(α₁, …, αᵣ) generalizes Beta to r categories, and how 
 
 #### Input
 
-| Slider                | Range  | Default |
-| --------------------- | ------ | ------- |
-| k₁ — Ulasan Positif   | 0–1000 | 0       |
-| k₂ — Ulasan Netral    | 0–1000 | 0       |
-| k₃ — Ulasan Negatif   | 0–1000 | 0       |
+| Slider              | Range  | Default |
+| ------------------- | ------ | ------- |
+| k₁ — Ulasan Positif | 0–1000 | 0       |
+| k₂ — Ulasan Netral  | 0–1000 | 0       |
+| k₃ — Ulasan Negatif | 0–1000 | 0       |
 
 Parameters: **αᵢ = kᵢ + 1** (mirror Beta off-by-one per Tsun, 2020, p. 269–270 — must be exact). Total concentration **α₀ = Σ αⱼ**.
 
 #### Computed values
 
-| Symbol     | Formula                                                | Edge case                  |
-| ---------- | ------------------------------------------------------ | -------------------------- |
-| αᵢ         | kᵢ + 1                                                 | —                          |
-| α₀         | Σ αⱼ                                                   | —                          |
-| Mode pᵢ    | $k_i / \sum_j k_j$ = $(\alpha_i - 1)/(\alpha_0 - r)$    | "—" when all kᵢ = 0        |
-| Mean pᵢ    | $\alpha_i / \alpha_0$                                  | —                          |
+| Symbol  | Formula                                              | Edge case           |
+| ------- | ---------------------------------------------------- | ------------------- |
+| αᵢ      | kᵢ + 1                                               | —                   |
+| α₀      | Σ αⱼ                                                 | —                   |
+| Mode pᵢ | $k_i / \sum_j k_j$ = $(\alpha_i - 1)/(\alpha_0 - r)$ | "—" when all kᵢ = 0 |
+| Mean pᵢ | $\alpha_i / \alpha_0$                                | —                   |
 
 When all kᵢ = 0: display "Dir(1, 1, 1) = Uniform pada simplex — semua proporsi sama mungkin."
 
@@ -444,49 +444,236 @@ Interpretasi: Seolah-olah sudah mengamati {k₁} positif, {k₂} netral, {k₃} 
 
 ---
 
-## 4. Week 12 — Confidence Interval (PLACEHOLDER)
+## 4. Week 12 — Confidence Interval (FULLY IMPLEMENTED)
 
-**Source:** Tsun, 2020, Ch. 8; RPS Sub-CPMK: "Mahasiswa mampu membangun dan menginterpretasikan confidence interval"
+**Source:** Tsun, 2020, Ch. 8 (§8.1 & §8.2); RPS Sub-CPMK: "Mahasiswa mampu membangun dan menginterpretasikan confidence interval"
 
-**Topics per RPS:**
+**Slide deck of record:** `references/week12.md` (16 slides). Module pedagogy is derived from slides 7–13.
 
-1. Confidence Interval
-2. Interpretasi Interval Kepercayaan
+Week 12 renders four interactive modules in the main content area, each in its own `ModuleCard`. The slide-9 Bernoulli book example (n=400, k=136, 99%) is the canonical reference instance and surfaces as a preset in Module 12.1.
 
-### Placeholder view requirements
+### Module 12.1 — Confidence Interval untuk Proporsi (Bernoulli)
 
-The Week 12 page must render the week header (§2.5) followed by **three placeholder module cards**, one per planned module:
+#### Purpose
 
-#### Planned Module 12.1 — CI for Population Mean (σ known)
+Walk the canonical book example (Tsun, 2020, hal. 300–301): build a 100(1−α)% CI for Bernoulli θ from $n$ and $k = \sum x_i$ using the CLT-based Z formula. Mirrors the slide-9 derivation, live.
 
-**Placeholder card content:**
+#### Context label
 
-- Title: "Modul 1 — Confidence Interval: Rata-rata Populasi (σ Diketahui)"
-- Status badge: `[Segera Hadir]` in amber
-- Description: "Modul ini akan mendemonstrasikan pembangunan confidence interval untuk rata-rata populasi ketika simpangan baku (σ) diketahui, menggunakan distribusi Normal (Z)."
-- Planned formula preview (rendered in KaTeX, non-interactive):
-  $$\bar{x} \pm z_{\alpha/2} \cdot \frac{\sigma}{\sqrt{n}}$$
-- Planned interactions note: "Mahasiswa akan dapat mengatur n, x̄, σ, dan tingkat kepercayaan (90%, 95%, 99%), lalu melihat interval berubah secara live pada number line."
+> **Kasus:** Tim QA NimbusStore mengamati upload success rate dari $n$ percobaan. Bangun confidence interval untuk θ sesungguhnya menggunakan CLT.
 
-#### Planned Module 12.2 — CI for Population Mean (σ unknown, t-distribution)
+#### Input
 
-**Placeholder card content:**
+| Control                | Range                                        | Default |
+| ---------------------- | -------------------------------------------- | ------- |
+| $n$ slider             | 10–2000                                      | 400     |
+| $k$ slider             | 0–$n$ (clamps if $n$ shrinks)                | 136     |
+| Confidence level radio | 90% (z=1.645) / 95% (z=1.96) / 99% (z=2.576) | 99%     |
 
-- Title: "Modul 2 — Confidence Interval: Rata-rata Populasi (σ Tidak Diketahui)"
-- Status badge: `[Segera Hadir]` in amber
-- Description: "Modul ini akan mendemonstrasikan penggunaan distribusi-t (Student's t) ketika σ tidak diketahui dan n kecil."
-- Planned formula preview:
-  $$\bar{x} \pm t_{\alpha/2,\, n-1} \cdot \frac{s}{\sqrt{n}}$$
-- Planned interactions note: "Mahasiswa akan memasukkan data sampel mentah, lalu sistem menghitung s, df, dan CI secara otomatis."
+#### Computed values
 
-#### Planned Module 12.3 — CI Interpretation Simulator
+| Symbol         | Formula                                                          |
+| -------------- | ---------------------------------------------------------------- |
+| $\hat{\theta}$ | $k / n$                                                          |
+| $\hat{\sigma}$ | $\sqrt{\hat{\theta}(1-\hat{\theta})}$                            |
+| $\Delta$       | $z_{1-\alpha/2} \cdot \hat{\sigma} / \sqrt{n}$                   |
+| CI             | $[\max(0, \hat{\theta}-\Delta),\; \min(1, \hat{\theta}+\Delta)]$ |
 
-**Placeholder card content:**
+#### Derivation panel (4 steps, live substitution)
 
-- Title: "Modul 3 — Interpretasi: Apa Artinya '95% Confident'?"
-- Status badge: `[Segera Hadir]` in amber
-- Description: "Modul ini akan mensimulasikan 100 sampel berbeda dari populasi yang sama, menggambar masing-masing confidence interval, dan menunjukkan berapa persen yang benar-benar mencakup parameter sesungguhnya."
-- Planned interactions note: "Simulasi interaktif: jalankan ulang sebanyak yang diinginkan untuk membangun intuisi tentang arti frekuentis dari confidence level."
+1. **Definisi** — boxed formula $\hat{\theta} \pm z_{1-\alpha/2}\cdot \sigma/\sqrt{n}$ with citation (Tsun, 2020, hal. 300).
+2. **Parameter dari data** — $\hat{\theta}=k/n$ and $\hat{\sigma}\approx\sqrt{\hat{\theta}(1-\hat{\theta})}$ with live numbers; $\alpha$ and $z$ stated explicitly.
+3. **Substitusi** — $\hat{\theta} \pm z\cdot\hat{\sigma}/\sqrt{n}$ filled with live numbers, matching slide-9 step 4.
+4. **Hasil** — `[lower, upper]` with 3 dp, plus the natural-language sentence: "Kami $X$% yakin bahwa θ sesungguhnya berada di antara $\ldots$ dan $\ldots$. Titik estimasi terbaik kami: $\ldots$."
+
+#### Chart
+
+A Recharts `AreaChart` plotting the Normal sampling distribution of $\hat\theta$ — i.e. $N(\hat\theta, \hat\sigma^2/n)$ — over the auto-zoomed x-range $[\hat\theta - 4\hat\sigma/\sqrt n,\; \hat\theta + 4\hat\sigma/\sqrt n]$ clamped to $[0,1]$. A second `Area` series shades only the CI band $[\text{lower}, \text{upper}]$ at higher opacity. `ReferenceLine`s mark $\hat\theta$ (dashed) and each CI endpoint.
+
+#### Preset buttons
+
+| Label                                  | n   | k   | level |
+| -------------------------------------- | --- | --- | ----- |
+| "Buku Tsun (n=400, k=136)"             | 400 | 136 | 99%   |
+| "NimbusStore upload (n=200, k=154)"    | 200 | 154 | 95%   |
+| "Retention smart-sync (n=300, k=210)"  | 300 | 210 | 95%   |
+| "E-commerce gagal bayar (n=500, k=45)" | 500 | 45  | 95%   |
+
+---
+
+### Module 12.2 — Width Explorer: Pengaruh n dan Confidence Level
+
+#### Purpose
+
+Make slide 10 interactive: show that CI width scales as $z\sigma/\sqrt n$, that halving the width requires $4\times$ the sample, and that higher confidence levels widen the interval. Includes an inverse calculation for the minimum $n$ needed to hit a target margin.
+
+#### Context label
+
+> **Kasus:** Tim produk menjalankan A/B test; berapa $n$ minimum agar margin error ≤ ±2% pada confidence 95%? Eksplorasi trade-off antara ukuran sampel, tingkat keyakinan, dan presisi.
+
+#### Input
+
+| Control                        | Range                 | Default                         |
+| ------------------------------ | --------------------- | ------------------------------- |
+| $n$ slider (log-position)      | 10–10000              | 400                             |
+| $\sigma$ slider                | 0.05–0.5              | 0.5 (slide-10 conservative max) |
+| Confidence level radio         | 90% / 95% / 98% / 99% | 95%                             |
+| Target margin $m$ number input | 0.001–0.5             | 0.02                            |
+
+#### Computed values
+
+| Symbol     | Formula                         |
+| ---------- | ------------------------------- |
+| $\Delta$   | $z \sigma / \sqrt n$            |
+| Lebar      | $2\Delta$                       |
+| $n_{\min}$ | $\lceil (z\sigma / m)^2 \rceil$ |
+
+#### Derivation panel
+
+1. **Definisi** — $\text{Lebar} = 2 z_{1-\alpha/2}\cdot\sigma/\sqrt n$ (Tsun, 2020, hal. 300).
+2. **Parameter dari data** — current $z$, $\sigma$, $n$.
+3. **Substitusi** — $\Delta = z\sigma/\sqrt n$ with live numbers; full width $2\Delta$.
+4. **Hasil** — current Δ and 2Δ; the inverse $n_{\min} = \lceil (z\sigma/m)^2 \rceil$ derivation; reminder that halving Δ costs $4\times$ the data.
+
+#### Chart
+
+Recharts `LineChart` of $\Delta(n) = z\sigma/\sqrt n$ vs $n$ on a `scale="log"` x-axis, 80 log-spaced points 10–10000. Three lines overlay levels 90% / 95% / 99% in distinct colours. Vertical `ReferenceLine` at current $n$; horizontal `ReferenceLine` at the target margin $m$.
+
+#### Supporting table
+
+For the current $\sigma$, show Δ values at $n \in \{25, 100, 400, 1600\}$ across the 90% / 95% / 99% levels (slide-10 table form, live $\sigma$).
+
+#### Preset buttons
+
+| Label                              | n    | σ   | level | m    |
+| ---------------------------------- | ---- | --- | ----- | ---- |
+| "Slide 10 default (σ=0.5, n=100)"  | 100  | 0.5 | 95%   | 0.05 |
+| "A/B test margin ±2% (n_min=2401)" | 2401 | 0.5 | 95%   | 0.02 |
+| "Survei politik (σ=0.5, n=1000)"   | 1000 | 0.5 | 95%   | 0.03 |
+
+---
+
+### Module 12.3 — Interpretation Simulator: Apa Artinya "95% Confident"?
+
+#### Purpose
+
+Make slide 11 visceral. Fix a known true $\theta$, draw $K$ independent samples of size $n$ using a seeded PRNG, build each CI, and show that ≈ $(1-\alpha)\cdot K$ of them actually contain $\theta$. Demolishes the "95% probability $\theta$ is in this interval" misconception.
+
+#### Context label
+
+> **Kasus:** Simulasikan prosedur survei berulang kali — dengan θ yang sebenarnya diketahui — lalu hitung berapa persen interval yang benar-benar mengandung θ. Ini membongkar miskonsepsi paling umum tentang CI.
+
+#### Input
+
+| Control                     | Range                 | Default                                                         |
+| --------------------------- | --------------------- | --------------------------------------------------------------- |
+| True $\theta$ slider        | 0.05–0.95             | 0.5                                                             |
+| Sample size $n$ slider      | 30–500                | 100                                                             |
+| Number of trials $K$ slider | 20–200                | 100                                                             |
+| Confidence level radio      | 80% / 90% / 95% / 99% | 95%                                                             |
+| **"Jalankan Ulang"** button | —                     | re-seeds the simulation by incrementing an internal run counter |
+
+#### Randomness
+
+Simulation uses `mulberry32(seed)` from `src/utils/mathUtils.ts` with `seed = 1000 + runCounter * 7919`. Each button click increments `runCounter`, producing a fresh deterministic sequence — no `Math.random` anywhere.
+
+#### Computed values
+
+Per trial $i$: $k_i$, $\hat{\theta}_i = k_i/n$, $CI_i$, indicator $[\theta \in CI_i]$. Summary: hit count, observed coverage rate, expected coverage = $(1-\alpha)\cdot 100\%$.
+
+#### Derivation panel
+
+1. **Definisi** — $P(\theta \in [\hat\theta-\Delta, \hat\theta+\Delta]) = 1-\alpha$ with the slide-11 correct interpretation quote (Tsun, 2020, hal. 301).
+2. **Parameter dari data** — current $\theta$, $n$, $K$, $z$.
+3. **Substitusi** — generative form for trial $i$: $x_{i,j} \sim \mathrm{Ber}(\theta)$, $\hat\theta_i = \frac{1}{n}\sum_j x_{i,j}$.
+4. **Hasil** — observed coverage rate $\#\{i: \theta \in CI_i\}/K$ vs nominal $(1-\alpha)$.
+
+#### Chart
+
+Custom SVG-via-CSS visualization (not Recharts) since Recharts has no native horizontal-range-segment shape. The chart is a `<div>` with `position: relative` and bars positioned in percentage units: each bar at `top: i*(100/K)%`, `left: lower*100%`, `width: (upper-lower)*100%`, height auto-derived from $K$. Colour: `--chart-5` (green) if contains $\theta$, `--destructive` (red) otherwise. A vertical line at `left: theta*100%` marks the true $\theta$. The container has fixed pixel height capped between 220 and 420 to keep bars legible at low/high $K$.
+
+#### Interpretation box
+
+Side-by-side wrong-vs-right table from slide 11: the "❌ Salah" column quotes the misconception (using the live $X$% level); the "✅ Benar" column quotes the textbook correction.
+
+---
+
+### Module 12.4 — Credible Interval (Bayesian) vs Confidence Interval
+
+#### Purpose
+
+Make slides 12–13 interactive: build a Bayesian credible interval from a Beta posterior using the conjugate Beta–Bernoulli update, and compare side-by-side with the frequentist CI from Module 12.1. Connects back to Week 11's `BetaExplorer`: when $\alpha_0 = \beta_0 = 1$ (uniform prior), the posterior collapses to Beta(k+1, m+1), identical to Module 11.3.
+
+#### Context label
+
+> **Kasus:** NimbusStore mengestimasi retention rate fitur baru. Kombinasikan prior dari data historis dengan observasi baru. Bandingkan credible interval (Bayesian) dengan confidence interval (frequentist).
+
+#### Input
+
+| Control                 | Range                 | Default                    |
+| ----------------------- | --------------------- | -------------------------- |
+| Prior $\alpha_0$ slider | 1–50                  | 7                          |
+| Prior $\beta_0$ slider  | 1–50                  | 3                          |
+| $k$ slider (sukses)     | 0–500                 | 11                         |
+| $m$ slider (gagal)      | 0–500                 | 1                          |
+| Credible level radio    | 80% / 90% / 95% / 99% | 80% (matches book example) |
+
+#### Computed values
+
+| Symbol                      | Formula                                                                                                                      |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Posterior $\alpha$          | $\alpha_0 + k$                                                                                                               |
+| Posterior $\beta$           | $\beta_0 + m$                                                                                                                |
+| Posterior mean              | $\alpha/(\alpha+\beta)$                                                                                                      |
+| Posterior mode              | $(\alpha-1)/(\alpha+\beta-2)$ if $\alpha,\beta > 1$ else "—"                                                                 |
+| Credible interval           | $[F^{-1}_{\text{Beta}(\alpha,\beta)}(\alpha_{\text{lvl}}/2),\; F^{-1}_{\text{Beta}(\alpha,\beta)}(1-\alpha_{\text{lvl}}/2)]$ |
+| Frequentist CI (comparison) | `bernoulliCI(k, k+m, z)`                                                                                                     |
+
+#### Derivation panel
+
+1. **Definisi** — credible interval definition (Tsun, 2020, hal. 304, Def 8.2.1).
+2. **Parameter dari data** — posterior $\mathrm{Beta}(\alpha_0+k,\;\beta_0+m)$ with live numbers.
+3. **Substitusi** — explicit $a = F^{-1}_{\text{Beta}(\alpha,\beta)}(\alpha_{\text{lvl}}/2)$, $b = F^{-1}_{\text{Beta}(\alpha,\beta)}(1-\alpha_{\text{lvl}}/2)$.
+4. **Hasil** — credible interval $[a, b]$ with 4 dp.
+
+#### Chart
+
+Recharts `AreaChart` of the posterior Beta PDF on $[0, 1]$ (201 points). A second `Area` series gated to the credible-interval x-range shades the band at higher opacity. `ReferenceLine`s mark posterior mean, posterior mode (when defined), and the credible-interval endpoints.
+
+#### Comparison table
+
+Direct slide-13 dimension matrix populated with the **live** credible interval and the live frequentist CI for the same $k, m$:
+
+| Dimensi                | Credible Interval (Bayesian)                                        | Confidence Interval (Frequentist)                                     |
+| ---------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Apa itu θ?             | Variabel acak Θ                                                     | Tetap, tidak diketahui                                                |
+| Interval pada data ini | live `[a, b]`                                                       | live `bernoulliCI` result                                             |
+| Rumus                  | $[F^{-1}(\alpha/2), F^{-1}(1-\alpha/2)]$                            | $\hat\theta \pm z\hat\sigma/\sqrt n$                                  |
+| Interpretasi           | $P(\Theta \in [a,b]) = 1-\alpha$ — pernyataan probabilitas langsung | $1-\alpha$ dari prosedur akan menghasilkan interval yang mengandung θ |
+| Butuh prior?           | Ya — Beta(α₀, β₀)                                                   | Tidak                                                                 |
+
+#### Preset buttons
+
+| Label                                   | α₀  | β₀  | k   | m   | level | Expected credible interval   |
+| --------------------------------------- | --- | --- | --- | --- | ----- | ---------------------------- |
+| "Buku Tsun (n=12, k=11)"                | 7   | 3   | 11  | 1   | 80%   | ≈ [0.7089, 0.9142]           |
+| "Retention smart-sync (prior historis)" | 14  | 6   | 210 | 90  | 95%   | ≈ [0.638, 0.745]             |
+| "Uninformative + Bernoulli buku"        | 1   | 1   | 136 | 264 | 99%   | compare to CI [0.279, 0.401] |
+
+---
+
+### Week 12 acceptance criteria
+
+| #       | Criterion                                                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| AC-12-1 | Module 12.1 with preset "Buku Tsun (n=400, k=136)" and level 99% produces CI ≈ [0.279, 0.401] within ±0.001                           |
+| AC-12-2 | Module 12.1 derivation panel substitutes live $n$, $k$, $z$; all formulas render as KaTeX (not raw strings)                           |
+| AC-12-3 | Module 12.2 log-x width plot's vertical reference line tracks the current $n$ slider; lines for 90/95/99 are visually distinct        |
+| AC-12-4 | Module 12.2 inverse calculation: σ=0.5, level=95%, m=0.02 produces $n_{\min} = 2401$                                                  |
+| AC-12-5 | Module 12.3 with K=200, level=95%, default seed produces coverage rate within ±5 percentage points of 95%                             |
+| AC-12-6 | Module 12.3 "Jalankan Ulang" produces a different deterministic sample sequence each click (seeded by run counter)                    |
+| AC-12-7 | Module 12.4 with preset "Buku Tsun (n=12, k=11)" produces credible interval ≈ [0.7089, 0.9142] within ±0.001                          |
+| AC-12-8 | Module 12.4 with α₀=1, β₀=1 collapses to Beta(k+1, m+1) — visually identical posterior to Module 11.3 `BetaExplorer` for the same k,m |
 
 ---
 
@@ -708,22 +895,29 @@ This updates automatically as more weeks are implemented (based on which `WeekNP
 
 All formulas must be implemented exactly as specified:
 
-| Formula          | Correct implementation                                                | Do NOT use                      |
-| ---------------- | --------------------------------------------------------------------- | ------------------------------- |
-| Bernoulli MLE    | `k / n`                                                               | Any iterative optimizer         |
-| Bernoulli L(θ)   | `Math.pow(theta, k) * Math.pow(1 - theta, n - k)`                     | Approximations                  |
-| Poisson log-L(θ) | `-n * theta + sumX * Math.log(theta)`                                 | Raw likelihood (underflow risk) |
-| Poisson MLE      | `sumX / n`                                                            | Any iterative optimizer         |
-| Beta PDF         | `betaPDF(x, alpha, beta)` via Lanczos log-gamma (see §3, Module 11.3) | Any non-normalized form         |
-| Beta α           | `k + 1`                                                               | `k` ← off-by-one error          |
-| Beta β           | `m + 1`                                                               | `m` ← off-by-one error          |
-| Beta Mode        | `(alpha - 1) / (alpha + beta - 2)` = `k / (k + m)`                    | Mean or median                  |
-| Beta Mean        | `alpha / (alpha + beta)` = `(k+1) / (k+m+2)`                          | Mode                            |
-| Dirichlet PDF    | `dirichletPDF(xs, alphas)` via `lnMultiBeta` (Lanczos lnGamma)        | Any non-normalized form         |
-| Dirichlet αᵢ     | `kᵢ + 1`                                                              | `kᵢ` ← off-by-one error         |
-| Dirichlet Mode pᵢ| `kᵢ / Σⱼ kⱼ` = `(αᵢ − 1) / (α₀ − r)`                                  | Mean or median                  |
-| Dirichlet Mean pᵢ| `αᵢ / α₀`                                                             | Mode                            |
-| Marginal of Dir  | `betaPDF(x, αᵢ, α₀ − αᵢ)`                                             | Plotting joint density in 1D    |
+| Formula                      | Correct implementation                                                                          | Do NOT use                                                             |
+| ---------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Bernoulli MLE                | `k / n`                                                                                         | Any iterative optimizer                                                |
+| Bernoulli L(θ)               | `Math.pow(theta, k) * Math.pow(1 - theta, n - k)`                                               | Approximations                                                         |
+| Poisson log-L(θ)             | `-n * theta + sumX * Math.log(theta)`                                                           | Raw likelihood (underflow risk)                                        |
+| Poisson MLE                  | `sumX / n`                                                                                      | Any iterative optimizer                                                |
+| Beta PDF                     | `betaPDF(x, alpha, beta)` via Lanczos log-gamma (see §3, Module 11.3)                           | Any non-normalized form                                                |
+| Beta α                       | `k + 1`                                                                                         | `k` ← off-by-one error                                                 |
+| Beta β                       | `m + 1`                                                                                         | `m` ← off-by-one error                                                 |
+| Beta Mode                    | `(alpha - 1) / (alpha + beta - 2)` = `k / (k + m)`                                              | Mean or median                                                         |
+| Beta Mean                    | `alpha / (alpha + beta)` = `(k+1) / (k+m+2)`                                                    | Mode                                                                   |
+| Dirichlet PDF                | `dirichletPDF(xs, alphas)` via `lnMultiBeta` (Lanczos lnGamma)                                  | Any non-normalized form                                                |
+| Dirichlet αᵢ                 | `kᵢ + 1`                                                                                        | `kᵢ` ← off-by-one error                                                |
+| Dirichlet Mode pᵢ            | `kᵢ / Σⱼ kⱼ` = `(αᵢ − 1) / (α₀ − r)`                                                            | Mean or median                                                         |
+| Dirichlet Mean pᵢ            | `αᵢ / α₀`                                                                                       | Mode                                                                   |
+| Marginal of Dir              | `betaPDF(x, αᵢ, α₀ − αᵢ)`                                                                       | Plotting joint density in 1D                                           |
+| Normal CDF Φ(z)              | `0.5 * (1 + erf(z / Math.SQRT2))` with Abramowitz–Stegun 7.1.26 `erf`                           | Lookup table interpolation                                             |
+| Inverse Normal Φ⁻¹(p)        | Beasley–Springer–Moro rational approximation (`normalInverseCDF`)                               | Linear interpolation of Φ                                              |
+| Beta CDF $I_x(\alpha,\beta)$ | Regularized incomplete beta via Lentz's continued fraction (Numerical Recipes §6.4) — `betaCDF` | Trapezoidal integration of `betaPDF`                                   |
+| Beta inverse CDF             | Bisection on `betaCDF` (tolerance 1e-7, ≤ 60 iters) — `betaInverseCDF`                          | Newton's method without bracketing (diverges near boundaries)          |
+| Proportion CI Δ              | `z * Math.sqrt(thetaHat * (1 - thetaHat) / n)` via `bernoulliCI`                                | `z * Math.sqrt(thetaHat * (1 - thetaHat)) / n` ← `/n` outside the sqrt |
+| Proportion CI clamp          | Clamp final lower/upper to `[0, 1]` (proportion only)                                           | Clamping σ̂ or $\hat\theta$ (changes the math)                          |
+| PRNG for Monte Carlo CI      | `mulberry32(seed)` — seeded, deterministic; seed advances on user trigger                       | `Math.random()` — non-deterministic, not reproducible                  |
 
 ---
 
@@ -750,7 +944,12 @@ src/
 │   │   ├── PoissonMLE.jsx
 │   │   ├── BetaExplorer.jsx
 │   │   └── DirichletExplorer.jsx
-│   └── (week12/, week13/, etc. added in future sessions)
+│   ├── week12/
+│   │   ├── CIProportion.jsx
+│   │   ├── CIWidthExplorer.jsx
+│   │   ├── CIInterpretationSimulator.jsx
+│   │   └── CredibleInterval.jsx
+│   └── (week13/, week14/, etc. added in future sessions)
 └── utils/
     ├── mathUtils.js           # lnGamma, betaPDF, dirichletPDF, all math functions
     └── weekConfig.js          # Week metadata (titles, sub-CPMK, status)
@@ -851,13 +1050,13 @@ When a week is fully implemented, change its `status` to `"available"` — the s
 
 ### Placeholder Weeks
 
-| #     | Criterion                                                                                                                     |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------- |
-| AC-P1 | Each placeholder week (12–15) renders the correct week header with matching title and Sub-CPMK from RPS                       |
-| AC-P2 | Each placeholder week renders the correct number of placeholder module cards (Week 12: 3, Week 13: 4, Week 14: 3, Week 15: 2) |
-| AC-P3 | All formula previews in placeholder cards render correctly via KaTeX                                                          |
-| AC-P4 | No placeholder card renders any interactive control (no inputs, sliders, or buttons other than the nav)                       |
-| AC-P5 | Placeholder cards use dashed border and muted background, visually distinct from Week 11 module cards                         |
+| #     | Criterion                                                                                                                                                     |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AC-P1 | Each placeholder week (12–15) renders the correct week header with matching title and Sub-CPMK from RPS                                                       |
+| AC-P2 | Each placeholder week renders the correct number of placeholder module cards (Week 13: 4, Week 14: 3, Week 15: 2) — Week 12 is now fully implemented (see §4) |
+| AC-P3 | All formula previews in placeholder cards render correctly via KaTeX                                                                                          |
+| AC-P4 | No placeholder card renders any interactive control (no inputs, sliders, or buttons other than the nav)                                                       |
+| AC-P5 | Placeholder cards use dashed border and muted background, visually distinct from Week 11 module cards                                                         |
 
 ### General
 
