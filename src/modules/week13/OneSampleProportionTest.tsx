@@ -275,7 +275,7 @@ export function OneSampleProportionTest() {
 
         <p className="font-semibold">Step 5 — Kesimpulan:</p>
         <BlockMath
-          math={String.raw`p = ${pValue.toExponential(3)} \;${reject ? "<" : "\\geq"}\; \alpha = ${alpha} \implies \textbf{${reject ? "Tolak\\ H_0" : "Gagal\\ menolak\\ H_0"}}`}
+          math={String.raw`p = ${pValue.toExponential(3)} \;${reject ? "<" : "\\geq"}\; \alpha = ${alpha} \implies \textbf{${reject ? "Tolak" : "Gagal\\ menolak"}}\ H_0`}
         />
         <p className="font-sans text-foreground">
           {reject ? (
